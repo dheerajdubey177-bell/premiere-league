@@ -22,13 +22,13 @@ export const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
 }) => {
   return (
     <div
-      className="pointer-events-none fixed inset-0 z-30 flex items-center justify-center p-4 sm:p-6"
+      className="pointer-events-none fixed inset-0 z-30 flex items-center justify-center p-3 sm:p-6"
       role="dialog"
       aria-modal="true"
       aria-label={`${star.name} player profile and achievements`}
     >
       {/* Solid dark rgba card (no backdrop-filter over WebGL) */}
-      <div className="pointer-events-auto relative w-full max-w-3xl max-h-[84vh] overflow-y-auto rounded-2xl border border-white/15 bg-[#0a101b]/97 shadow-[0_28px_70px_rgba(0,0,0,0.85)] p-5 sm:p-6">
+      <div className="club-scroll pointer-events-auto relative w-full max-w-3xl max-h-[88dvh] overflow-y-auto overscroll-contain rounded-2xl border border-white/15 bg-[#0a101b]/97 shadow-[0_28px_70px_rgba(0,0,0,0.85)] p-4 sm:p-6">
         {/* Top Action Bar */}
         <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-3">
           <div className="flex items-center gap-2.5 min-w-0">
@@ -78,9 +78,9 @@ export const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
         </div>
 
         {/* Main Content Split */}
-        <div className="mt-4 flex flex-col gap-5 sm:flex-row sm:items-start">
+        <div className="mt-4 flex flex-col gap-4 sm:gap-5 sm:flex-row sm:items-start">
           {/* Left Column: Real Photo + Season Telemetry */}
-          <div className="flex flex-row sm:flex-col items-center sm:items-stretch gap-4 shrink-0">
+          <div className="flex flex-row sm:flex-col items-center sm:items-stretch gap-3 sm:gap-4 shrink-0">
             <PlayerAvatar star={star} club={club} size="lg" />
 
             <div className="grid grid-cols-2 gap-2 flex-1 sm:flex-none rounded-xl border border-white/10 bg-white/4 p-3 font-mono-tabular">

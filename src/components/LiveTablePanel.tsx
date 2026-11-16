@@ -292,7 +292,7 @@ export const LiveTablePanel: React.FC<LiveTablePanelProps> = ({
             ? 'Live Tennis Rankings & Scores'
             : 'Live Premier League Table'
       }
-      className="fixed top-3 right-3 bottom-3 left-3 sm:left-auto sm:top-4 sm:right-4 sm:bottom-4 sm:w-[min(560px,92vw)] z-30 flex flex-col rounded-2xl border border-white/15 bg-[#0a101b]/97 shadow-[0_28px_70px_rgba(0,0,0,0.85)] overflow-hidden"
+      className="fixed top-[max(0.75rem,env(safe-area-inset-top))] right-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-3 sm:left-auto sm:top-4 sm:right-4 sm:bottom-4 sm:w-[min(560px,92vw)] z-30 flex flex-col rounded-2xl border border-white/15 bg-[#0a101b]/97 shadow-[0_28px_70px_rgba(0,0,0,0.85)] overflow-hidden"
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-3 border-b border-white/10 px-4 py-3.5 sm:px-5">
@@ -488,7 +488,7 @@ export const LiveTablePanel: React.FC<LiveTablePanelProps> = ({
       </div>
 
       {/* Body Content */}
-      <div className="club-scroll flex-1 overflow-y-auto px-3 py-2 sm:px-4">
+      <div className="club-scroll overscroll-contain flex-1 overflow-y-auto px-3 py-2 sm:px-4">
         {loading &&
           ((sport === 'football' && !tableData) ||
             (sport === 'cricket' && !currentCricketRanking && !cricketMatches) ||

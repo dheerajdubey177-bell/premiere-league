@@ -60,6 +60,19 @@ const _scratchTargetPos = new THREE.Vector3();
 const _scratchRotQuat = new THREE.Quaternion();
 const _yAxis = new THREE.Vector3(0, 1, 0);
 
+function getResponsiveDistance(baseDist: number, width: number, height: number): number {
+  const aspect = width / Math.max(1, height);
+  if (aspect < 0.95) {
+    const scale = Math.min(1.65, 0.95 / Math.max(0.42, aspect));
+    return baseDist * scale;
+  }
+  return baseDist;
+}
+
+function getResponsiveTargetY(width: number, height: number): number {
+  return width < 640 && width < height ? -0.55 : -0.15;
+}
+
 export const GlobeViewport: React.FC<GlobeViewportProps> = ({
   clubs,
   allStars,
@@ -141,6 +154,9 @@ export const GlobeViewport: React.FC<GlobeViewportProps> = ({
 
   // Trigger smooth camera flight when selectedStarId or selectedClubId changes
   useEffect(() => {
+    const mount = containerRef.current;
+    const w = mount?.clientWidth || window.innerWidth;
+    const h = mount?.clientHeight || window.innerHeight;
     const spinGroup = globeSpinRef.current;
     const rotY = spinGroup ? spinGroup.rotation.y : 0;
     _scratchRotQuat.setFromAxisAngle(_yAxis, rotY);
@@ -149,10 +165,9 @@ export const GlobeViewport: React.FC<GlobeViewportProps> = ({
       const star = allStars.find((s) => s.id === selectedStarId);
       if (star) {
         _scratchDir.copy(star.unitPos).applyQuaternion(_scratchRotQuat).normalize();
-        cameraFlightRef.current.distance = 6.2;
-        cameraFlightRef.current.targetCamPos
-          .copy(_scratchDir)
-          .multiplyScalar(cameraFlightRef.current.distance);
+        const dist = getResponsiveDistance(6.2, w, h);
+        cameraFlightRef.current.distance = dist;
+        cameraFlightRef.current.targetCamPos.copy(_scratchDir).multiplyScalar(dist);
         cameraFlightRef.current.targetCamPos.y += 0.25;
         cameraFlightRef.current.active = true;
         return;
@@ -164,10 +179,9 @@ export const GlobeViewport: React.FC<GlobeViewportProps> = ({
       if (club) {
         void prioritizeClubMedia(club.stars);
         _scratchDir.copy(club.anchorDir).applyQuaternion(_scratchRotQuat).normalize();
-        cameraFlightRef.current.distance = 6.35;
-        cameraFlightRef.current.targetCamPos
-          .copy(_scratchDir)
-          .multiplyScalar(cameraFlightRef.current.distance);
+        const dist = getResponsiveDistance(6.35, w, h);
+        cameraFlightRef.current.distance = dist;
+        cameraFlightRef.current.targetCamPos.copy(_scratchDir).multiplyScalar(dist);
         cameraFlightRef.current.targetCamPos.y += 0.25;
         cameraFlightRef.current.active = true;
       }
@@ -177,8 +191,12 @@ export const GlobeViewport: React.FC<GlobeViewportProps> = ({
   // Trigger reset camera flight
   useEffect(() => {
     if (resetSignal === 0) return;
-    cameraFlightRef.current.distance = 8.8;
-    cameraFlightRef.current.targetCamPos.set(0, 1.6, 8.65);
+    const mount = containerRef.current;
+    const w = mount?.clientWidth || window.innerWidth;
+    const h = mount?.clientHeight || window.innerHeight;
+    const dist = getResponsiveDistance(8.8, w, h);
+    cameraFlightRef.current.distance = dist;
+    cameraFlightRef.current.targetCamPos.set(0, 1.6, dist * 0.98);
     cameraFlightRef.current.active = true;
   }, [resetSignal]);
 
@@ -207,7 +225,8 @@ export const GlobeViewport: React.FC<GlobeViewportProps> = ({
     scene.fog = new THREE.FogExp2(0x060a11, 0.022);
 
     const camera = new THREE.PerspectiveCamera(44, width / height, 0.1, 100);
-    camera.position.set(0, 1.6, 8.8);
+    const initialDist = getResponsiveDistance(8.8, width, height);
+    camera.position.set(0, 1.6, initialDist);
 
     const renderer = new THREE.WebGLRenderer({
       antialias: !isSoftwareGl,
@@ -279,10 +298,10 @@ export const GlobeViewport: React.FC<GlobeViewportProps> = ({
     controls.dampingFactor = 0.06;
     controls.enablePan = false;
     controls.minDistance = 4.6;
-    controls.maxDistance = 14.5;
+    controls.maxDistance = 20;
     controls.rotateSpeed = 0.72;
     controls.zoomSpeed = 0.85;
-    controls.target.set(0, -0.15, 0);
+    controls.target.set(0, getResponsiveTargetY(width, height), 0);
 
     const onControlStart = () => {
       cameraFlightRef.current.active = false;
@@ -311,6 +330,7 @@ export const GlobeViewport: React.FC<GlobeViewportProps> = ({
     };
 
     const onPointerMove = (e: PointerEvent) => {
+      if (e.pointerType === 'touch') return;
       const now = performance.now();
       if (now - lastRaycastTime < 40) return;
       lastRaycastTime = now;
@@ -366,7 +386,8 @@ export const GlobeViewport: React.FC<GlobeViewportProps> = ({
     const onPointerUp = (e: PointerEvent) => {
       const dx = e.clientX - pointerDownPos.x;
       const dy = e.clientY - pointerDownPos.y;
-      if (dx * dx + dy * dy > 36) return;
+      const maxTapSq = e.pointerType === 'touch' ? 144 : 36;
+      if (dx * dx + dy * dy > maxTapSq) return;
 
       updatePointerNdc(e.clientX, e.clientY);
       raycaster.setFromCamera(pointerNdc, camera);
@@ -392,6 +413,7 @@ export const GlobeViewport: React.FC<GlobeViewportProps> = ({
     };
 
     renderer.domElement.style.cursor = 'grab';
+    renderer.domElement.style.touchAction = 'none';
     renderer.domElement.addEventListener('pointerdown', onPointerDown);
     renderer.domElement.addEventListener('pointermove', onPointerMove);
     renderer.domElement.addEventListener('pointerleave', onPointerLeave);
@@ -404,6 +426,7 @@ export const GlobeViewport: React.FC<GlobeViewportProps> = ({
       const h = mount.clientHeight || window.innerHeight;
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
+      controls.target.y = getResponsiveTargetY(w, h);
       renderer.setSize(w, h);
     };
     window.addEventListener('resize', onResize);

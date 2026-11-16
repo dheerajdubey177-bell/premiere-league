@@ -116,8 +116,8 @@ export const ControlDock: React.FC<ControlDockProps> = ({
 
   return (
     <div
-      className={`fixed bottom-4 left-1/2 z-20 w-[min(960px,94vw)] -translate-x-1/2 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-        collapsed ? 'translate-y-[calc(100%+18px)]' : 'translate-y-0'
+      className={`fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] sm:bottom-4 left-1/2 z-20 w-[min(960px,calc(100vw-0.75rem))] sm:w-[min(960px,94vw)] -translate-x-1/2 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        collapsed ? 'translate-y-[calc(100%+24px)]' : 'translate-y-0'
       }`}
     >
       {/* Collapse / Expand Handle Tab attached to top edge of dock */}
@@ -144,7 +144,7 @@ export const ControlDock: React.FC<ControlDockProps> = ({
       </div>
 
       {/* Main Dock Container (Solid rgba surface, zero backdrop-filter) */}
-      <div className="rounded-xl border border-white/12 bg-[#0a0f18]/95 shadow-[0_20px_50px_rgba(0,0,0,0.75)] p-3">
+      <div className="rounded-xl border border-white/12 bg-[#0a0f18]/95 shadow-[0_20px_50px_rgba(0,0,0,0.75)] p-2.5 sm:p-3">
         {/* Club Squad Roster Strip (Shown when a Club is focused and full star modal is not open) */}
         {selectedClub && !selectedStar && (
           <div className="mb-2.5 border-b border-white/10 pb-2.5">
@@ -177,8 +177,8 @@ export const ControlDock: React.FC<ControlDockProps> = ({
                 </div>
               </div>
 
-              {/* Club Segregated Squad Roster Strip with Real Player Avatars (All 18 Players) */}
-              <div className="club-scroll grid max-h-36 overflow-y-auto pr-1 grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-1.5">
+              {/* Club Segregated Squad Roster Strip with Real Player Avatars */}
+              <div className="club-scroll overscroll-contain grid max-h-28 sm:max-h-36 overflow-y-auto pr-1 grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-1.5">
                 {selectedClub.stars.map((star) => {
                   const dimmedByPos =
                     positionFilter !== 'ALL' && star.position !== positionFilter;
@@ -255,10 +255,10 @@ export const ControlDock: React.FC<ControlDockProps> = ({
         </div>
 
         {/* Row 2: Position Filter, Quick Star Search, Orbit Lift, & View Actions */}
-        <div className="mt-1.5 flex flex-wrap items-center justify-between gap-2.5 border-t border-white/8 pt-2">
-          <div className="flex flex-wrap items-center gap-2">
+        <div className="mt-1.5 flex flex-wrap items-center justify-between gap-2 border-t border-white/8 pt-2">
+          <div className="flex w-full sm:w-auto flex-wrap items-center gap-2">
             {/* Position Filter Segmented Bar */}
-            <div className="flex items-center gap-0.5 rounded-md bg-white/5 p-0.5">
+            <div className="flex items-center gap-0.5 rounded-md bg-white/5 p-0.5 shrink-0">
               {positionOptions.map((opt) => {
                 const active = positionFilter === opt.value;
                 return (
@@ -266,7 +266,7 @@ export const ControlDock: React.FC<ControlDockProps> = ({
                     key={opt.value}
                     type="button"
                     onClick={() => onChangePositionFilter(opt.value)}
-                    className={`rounded px-2.5 py-1 text-xs font-medium transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+                    className={`rounded px-2 sm:px-2.5 py-1 text-xs font-medium transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                       active
                         ? 'bg-slate-100 text-slate-950 font-semibold'
                         : 'text-slate-300 hover:text-white'
@@ -279,7 +279,7 @@ export const ControlDock: React.FC<ControlDockProps> = ({
             </div>
 
             {/* Quick Star / Club Search */}
-            <div className="relative">
+            <div className="relative flex-1 min-w-[140px] sm:flex-none">
               <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
               <input
                 type="text"
@@ -301,7 +301,7 @@ export const ControlDock: React.FC<ControlDockProps> = ({
                       ? 'Search tennis star or nation'
                       : 'Search Premier League star or club'
                 }
-                className="w-44 sm:w-52 rounded-md border border-white/10 bg-white/5 pl-8 pr-7 py-1 text-xs text-slate-100 placeholder:text-slate-500 focus:border-amber-300/70 focus:outline-none"
+                className="w-full sm:w-52 rounded-md border border-white/10 bg-white/5 pl-8 pr-7 py-1 text-base sm:text-xs leading-tight text-slate-100 placeholder:text-xs placeholder:text-slate-500 focus:border-amber-300/70 focus:outline-none"
               />
               {searchQuery && (
                 <button
@@ -314,19 +314,19 @@ export const ControlDock: React.FC<ControlDockProps> = ({
               )}
 
               {searchFocused && searchResults.length > 0 && (
-                <div className="absolute bottom-full left-0 mb-2 w-72 rounded-lg border border-white/15 bg-[#0b111c]/98 p-1 shadow-2xl z-30">
+                <div className="absolute bottom-full right-0 sm:right-auto sm:left-0 mb-2 w-[min(288px,calc(100vw-2rem))] rounded-lg border border-white/15 bg-[#0b111c]/98 p-1 shadow-2xl z-30">
                   {searchResults.map(({ star, club }) => (
                     <button
                       key={star.id}
                       type="button"
-                      onMouseDown={(e) => {
+                      onPointerDown={(e) => {
                         e.preventDefault();
                         onSelectClub(club.id);
                         onSelectStar(star.id);
                         setSearchQuery('');
                         setSearchFocused(false);
                       }}
-                      className="flex w-full items-center justify-between gap-2 rounded-md px-2.5 py-1.5 text-left text-xs hover:bg-white/10 transition-colors cursor-pointer"
+                      className="flex w-full items-center justify-between gap-2 rounded-md px-2.5 py-2 sm:py-1.5 text-left text-xs hover:bg-white/10 transition-colors cursor-pointer"
                     >
                       <div className="flex items-center gap-2 min-w-0">
                         <span
@@ -346,7 +346,7 @@ export const ControlDock: React.FC<ControlDockProps> = ({
           </div>
 
           {/* Orbit Lift Slider & View Toggles */}
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex w-full sm:w-auto flex-wrap items-center justify-between sm:justify-start gap-1.5 sm:gap-2">
             <label className="flex items-center gap-2 rounded-md bg-white/5 px-2.5 py-1 text-xs text-slate-300">
               <span className="whitespace-nowrap">Orbit Lift</span>
               <input
@@ -356,7 +356,7 @@ export const ControlDock: React.FC<ControlDockProps> = ({
                 step={0.01}
                 value={explodeTarget}
                 onChange={(e) => onChangeExplode(parseFloat(e.target.value))}
-                className="w-20 accent-amber-400 cursor-pointer"
+                className="w-16 sm:w-20 accent-amber-400 cursor-pointer"
               />
             </label>
 

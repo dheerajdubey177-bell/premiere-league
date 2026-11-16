@@ -12,9 +12,12 @@
   #root {
     width: 100%;
     height: 100%;
+    height: 100dvh;
     margin: 0;
     padding: 0;
     overflow: hidden;
+    overscroll-behavior: none;
+    -webkit-tap-highlight-color: transparent;
     background-color: #060a11;
     font-family: var(--font-sans);
     color: #f1f5f9;
@@ -30,8 +33,14 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Custom sleek horizontal scrollbar for the 20-club dock strip */
+/* Custom sleek scrollbar for dock strips & drawers */
+.club-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
 .club-scroll::-webkit-scrollbar {
+  width: 4px;
   height: 4px;
 }
 

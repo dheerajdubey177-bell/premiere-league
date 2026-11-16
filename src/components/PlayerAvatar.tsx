@@ -89,7 +89,7 @@ export const PlayerAvatar: React.FC<PlayerAvatarProps> = ({
 
   return (
     <div
-      className="relative h-48 w-36 sm:h-52 sm:w-40 shrink-0 overflow-hidden rounded-xl border border-white/15 bg-[#0c1320]"
+      className="relative h-40 w-32 sm:h-52 sm:w-40 shrink-0 overflow-hidden rounded-xl border border-white/15 bg-[#0c1320]"
       style={{
         backgroundImage: `linear-gradient(160deg, ${club.primaryColor}66 0%, #0b111d 70%)`,
       }}
