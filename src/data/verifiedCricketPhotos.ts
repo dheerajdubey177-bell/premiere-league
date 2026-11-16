@@ -1,4 +1,7 @@
-// Verified portrait URLs for Cricket World Globe players (Wikipedia + Wikimedia Commons + TheSportsDB)
+/**
+ * Verified Cricket player portrait URLs (all HTTP-verified).
+ * Coverage: 176 / 192 players.
+ */
 export const VERIFIED_CRICKET_PHOTOS: Record<string, string> = {
   "afghanistan:Asghar Afghan": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d0/Asghar_Afghan.jpg/330px-Asghar_Afghan.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
   "afghanistan:Fazalhaq Farooqi": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2a/Fazalhaq_Farooqi.jpg/330px-Fazalhaq_Farooqi.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
@@ -154,4 +157,26 @@ export const VERIFIED_CRICKET_PHOTOS: Record<string, string> = {
   "zimbabwe:Kyle Jarvis": "https://upload.wikimedia.org/wikipedia/commons/6/67/Kyle_Jarvis.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled",
   "zimbabwe:Sean Williams": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/08/Sean_williams_2012.jpg/330px-Sean_williams_2012.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
   "zimbabwe:Sikandar Raza": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2c/Sikandar_Raza_2022.jpg/330px-Sikandar_Raza_2022.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+  "afghanistan:Rahmanullah Gurbaz": "https://r2.thesportsdb.com/images/media/player/cutout/5n5cfg1650624519.png",
+  "ireland:Niall O’Brien": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7e/Niall_O%27Brien_%28cricketer%29_2009.JPG/330px-Niall_O%27Brien_%28cricketer%29_2009.JPG",
+  "scotland:Calum MacLeod": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8f/2009-06_Twenty20_World_Cup_-_NZ_v_Scotland_053.jpg/330px-2009-06_Twenty20_World_Cup_-_NZ_v_Scotland_053.jpg",
+  "scotland:Gavin Hamilton": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/18/Gavin_hamilton.jpg/330px-Gavin_hamilton.jpg",
+  "usa:Harmeet Singh": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4f/Harmeet_Singh_01.jpg/330px-Harmeet_Singh_01.jpg",
+  "sri-lanka:Kusal Perera": "https://a.espncdn.com/i/headshots/cricket/players/full/300631.png",
+  "sri-lanka:Niroshan Dickwella": "https://a.espncdn.com/i/headshots/cricket/players/full/429754.png",
+  "afghanistan:Mohammad Shahzad": "https://a.espncdn.com/i/headshots/cricket/players/full/419873.png",
+  "ireland:Boyd Rankin": "https://a.espncdn.com/i/headshots/cricket/players/full/24599.png",
+  "ireland:Simi Singh": "https://a.espncdn.com/i/headshots/cricket/players/full/1005257.png",
+  "zimbabwe:Hamilton Masakadza": "https://a.espncdn.com/i/headshots/cricket/players/full/55608.png",
+  "zimbabwe:Tendai Chatara": "https://a.espncdn.com/i/headshots/cricket/players/full/425639.png",
+  "zimbabwe:Graeme Cremer": "https://a.espncdn.com/i/headshots/cricket/players/full/55346.png",
+  "zimbabwe:Solomon Mire": "https://a.espncdn.com/i/headshots/cricket/players/full/290462.png",
+  "zimbabwe:Regis Chakabva": "https://a.espncdn.com/i/headshots/cricket/players/full/293831.png",
+  "scotland:Kyle Coetzer": "https://a.espncdn.com/i/headshots/cricket/players/full/25446.png",
+  "scotland:Alasdair Evans": "https://a.espncdn.com/i/headshots/cricket/players/full/399259.png",
+  "scotland:Majid Haq": "https://a.espncdn.com/i/headshots/cricket/players/full/25451.png",
+  "usa:Corey Anderson": "https://a.espncdn.com/i/headshots/cricket/players/full/277662.png",
+  "usa:Sami Aslam": "https://a.espncdn.com/i/headshots/cricket/players/full/547079.png",
+  "netherlands:Brandon Glover": "https://r2.thesportsdb.com/images/media/player/thumb/jpotd01717495818.jpg",
+  "netherlands:Fred Klaassen": "https://r2.thesportsdb.com/images/media/player/thumb/wkv2e81717593867.jpg",
 };

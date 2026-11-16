@@ -1,12 +1,14 @@
 import * as THREE from 'three';
 
-export type SportMode = 'football' | 'cricket';
+export type SportMode = 'football' | 'cricket' | 'tennis';
 
 export type FootballPosition = 'FW' | 'MF' | 'DF' | 'GK';
 
 export type CricketRole = 'BAT' | 'AR' | 'BWL' | 'WK';
 
-export type PlayerPosition = FootballPosition | CricketRole;
+export type TennisRole = 'ATP' | 'WTA' | 'DBL' | 'LEG';
+
+export type PlayerPosition = FootballPosition | CricketRole | TennisRole;
 
 export type HeraldryPattern = 'halves' | 'stripes' | 'sash' | 'chevron' | 'hoops' | 'solid';
 

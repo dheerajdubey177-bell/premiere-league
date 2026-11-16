@@ -50,6 +50,14 @@ const CRICKET_POSITION_OPTIONS: Array<{ value: PlayerPosition | 'ALL'; label: st
   { value: 'WK', label: 'WK' },
 ];
 
+const TENNIS_POSITION_OPTIONS: Array<{ value: PlayerPosition | 'ALL'; label: string }> = [
+  { value: 'ALL', label: 'All' },
+  { value: 'ATP', label: 'ATP' },
+  { value: 'WTA', label: 'WTA' },
+  { value: 'DBL', label: 'DBL' },
+  { value: 'LEG', label: 'LEG' },
+];
+
 export const ControlDock: React.FC<ControlDockProps> = ({
   sport,
   clubs,
@@ -71,7 +79,11 @@ export const ControlDock: React.FC<ControlDockProps> = ({
   onResetView,
 }) => {
   const positionOptions =
-    sport === 'cricket' ? CRICKET_POSITION_OPTIONS : FOOTBALL_POSITION_OPTIONS;
+    sport === 'cricket'
+      ? CRICKET_POSITION_OPTIONS
+      : sport === 'tennis'
+        ? TENNIS_POSITION_OPTIONS
+        : FOOTBALL_POSITION_OPTIONS;
   const [searchQuery, setSearchQuery] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
 
@@ -160,7 +172,7 @@ export const ControlDock: React.FC<ControlDockProps> = ({
                     className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-slate-300 hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
                   >
                     <X className="w-3.5 h-3.5" />
-                    <span>{sport === 'cricket' ? 'All Nations' : 'All Clubs'}</span>
+                    <span>{sport === 'football' ? 'All Clubs' : 'All Nations'}</span>
                   </button>
                 </div>
               </div>
@@ -212,7 +224,7 @@ export const ControlDock: React.FC<ControlDockProps> = ({
                 : 'bg-white/6 text-slate-300 hover:bg-white/12 hover:text-white'
             }`}
           >
-            {sport === 'cricket' ? `All ${clubs.length} Nations` : `All ${clubs.length} Clubs`}
+            {sport === 'football' ? `All ${clubs.length} Clubs` : `All ${clubs.length} Nations`}
           </button>
 
           {clubs.map((club) => {
@@ -275,8 +287,20 @@ export const ControlDock: React.FC<ControlDockProps> = ({
                 onFocus={() => setSearchFocused(true)}
                 onBlur={() => setTimeout(() => setSearchFocused(false), 160)}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={sport === 'cricket' ? 'Find cricketer or nation...' : 'Find star or club...'}
-                aria-label={sport === 'cricket' ? 'Search cricketer or nation' : 'Search Premier League star or club'}
+                placeholder={
+                  sport === 'cricket'
+                    ? 'Find cricketer or nation...'
+                    : sport === 'tennis'
+                      ? 'Find tennis star or nation...'
+                      : 'Find star or club...'
+                }
+                aria-label={
+                  sport === 'cricket'
+                    ? 'Search cricketer or nation'
+                    : sport === 'tennis'
+                      ? 'Search tennis star or nation'
+                      : 'Search Premier League star or club'
+                }
                 className="w-44 sm:w-52 rounded-md border border-white/10 bg-white/5 pl-8 pr-7 py-1 text-xs text-slate-100 placeholder:text-slate-500 focus:border-amber-300/70 focus:outline-none"
               />
               {searchQuery && (

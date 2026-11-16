@@ -64,7 +64,7 @@ export const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
               className="ml-1 flex items-center gap-1.5 rounded-md bg-white/8 px-2.5 py-1.5 text-xs font-medium text-slate-200 hover:bg-white/15 hover:text-white transition-colors whitespace-nowrap shrink-0 cursor-pointer"
             >
               <Users className="w-3.5 h-3.5" />
-              <span>{star.sport === 'cricket' ? 'Team Squad' : 'Club Squad'}</span>
+              <span>{star.sport === 'football' || !star.sport ? 'Club Squad' : 'Team Squad'}</span>
             </button>
             <button
               type="button"
@@ -86,19 +86,29 @@ export const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
             <div className="grid grid-cols-2 gap-2 flex-1 sm:flex-none rounded-xl border border-white/10 bg-white/4 p-3 font-mono-tabular">
               <div>
                 <div className="text-[11px] text-slate-400">
-                  {star.sport === 'cricket' ? 'Rating' : 'Overall'}
+                  {star.sport === 'cricket' || star.sport === 'tennis' ? 'Rating' : 'Overall'}
                 </div>
                 <div className="text-lg font-bold text-amber-300">{star.rating}</div>
               </div>
               <div>
                 <div className="text-[11px] text-slate-400">
-                  {star.sport === 'cricket' ? 'Matches' : 'Apps'}
+                  {star.sport === 'cricket'
+                    ? 'Matches'
+                    : star.sport === 'tennis'
+                      ? 'Wins'
+                      : 'Apps'}
                 </div>
-                <div className="text-lg font-bold text-white">{star.appearances}</div>
+                <div className="text-lg font-bold text-white">
+                  {star.appearances.toLocaleString()}
+                </div>
               </div>
               <div>
                 <div className="text-[11px] text-slate-400">
-                  {star.sport === 'cricket' ? 'Runs' : 'Goals'}
+                  {star.sport === 'cricket'
+                    ? 'Runs'
+                    : star.sport === 'tennis'
+                      ? 'Titles'
+                      : 'Goals'}
                 </div>
                 <div className="text-lg font-bold text-white">
                   {star.goals.toLocaleString()}
@@ -106,7 +116,11 @@ export const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
               </div>
               <div>
                 <div className="text-[11px] text-slate-400">
-                  {star.sport === 'cricket' ? 'Wickets' : 'Assists'}
+                  {star.sport === 'cricket'
+                    ? 'Wickets'
+                    : star.sport === 'tennis'
+                      ? 'Slams'
+                      : 'Assists'}
                 </div>
                 <div className="text-lg font-bold text-white">{star.assists}</div>
               </div>
@@ -154,7 +168,11 @@ export const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
               </div>
               <div>
                 <div className="text-slate-400">
-                  {star.sport === 'cricket' ? 'Batting Hand' : 'Preferred Foot'}
+                  {star.sport === 'cricket'
+                    ? 'Batting Hand'
+                    : star.sport === 'tennis'
+                      ? 'Plays'
+                      : 'Preferred Foot'}
                 </div>
                 <div className="mt-0.5 font-semibold text-white">
                   {star.preferredFoot}
@@ -162,7 +180,11 @@ export const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
               </div>
               <div>
                 <div className="text-slate-400">
-                  {star.sport === 'cricket' ? 'Int’l Debut' : `Joined ${club.shortName}`}
+                  {star.sport === 'cricket'
+                    ? 'Int’l Debut'
+                    : star.sport === 'tennis'
+                      ? 'Turned Pro'
+                      : `Joined ${club.shortName}`}
                 </div>
                 <div className="mt-0.5 font-mono-tabular font-semibold text-white">
                   {star.joinedClub}
@@ -174,13 +196,21 @@ export const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
             <div className="mt-3 space-y-1.5 text-xs">
               <div className="flex flex-wrap gap-x-2">
                 <span className="text-slate-400">
-                  {star.sport === 'cricket' ? 'Format Caps:' : 'International Record:'}
+                  {star.sport === 'cricket'
+                    ? 'Format Caps:'
+                    : star.sport === 'tennis'
+                      ? 'Career Peak:'
+                      : 'International Record:'}
                 </span>
                 <span className="font-medium text-slate-100">{star.internationalCaps}</span>
               </div>
               <div className="flex flex-wrap gap-x-2">
                 <span className="text-slate-400">
-                  {star.sport === 'cricket' ? 'Franchise & Domestic:' : 'Previous Clubs:'}
+                  {star.sport === 'cricket'
+                    ? 'Franchise & Domestic:'
+                    : star.sport === 'tennis'
+                      ? 'Surfaces & Highlights:'
+                      : 'Previous Clubs:'}
                 </span>
                 <span className="font-medium text-slate-200">
                   {star.previousClubs.join(' · ')}

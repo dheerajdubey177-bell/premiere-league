@@ -783,7 +783,9 @@ export const GlobeViewport: React.FC<GlobeViewportProps> = ({
                 <span>{hoveredTooltip.star.position}</span>
                 <span aria-hidden="true">·</span>
                 <span className="font-mono-tabular text-slate-300">
-                  {hoveredTooltip.star.sport === 'cricket' ? 'RTG' : 'OVR'}{' '}
+                  {hoveredTooltip.star.sport === 'cricket' || hoveredTooltip.star.sport === 'tennis'
+                    ? 'RTG'
+                    : 'OVR'}{' '}
                   {hoveredTooltip.star.rating}
                 </span>
               </div>
@@ -795,6 +797,12 @@ export const GlobeViewport: React.FC<GlobeViewportProps> = ({
                 <span>{hoveredTooltip.star.goals.toLocaleString()}R</span>
                 <span>{hoveredTooltip.star.assists}W</span>
                 <span>{hoveredTooltip.star.appearances} Mat</span>
+              </>
+            ) : hoveredTooltip.star.sport === 'tennis' ? (
+              <>
+                <span>{hoveredTooltip.star.goals} Titles</span>
+                <span>{hoveredTooltip.star.assists} Slams</span>
+                <span>{hoveredTooltip.star.appearances.toLocaleString()}W</span>
               </>
             ) : (
               <>

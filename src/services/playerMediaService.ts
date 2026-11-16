@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { SportMode, StarPlayer } from '../data/premierLeagueTypes';
 import { VERIFIED_CRICKET_PHOTOS } from '../data/verifiedCricketPhotos';
 import { VERIFIED_PLAYER_PHOTOS } from '../data/verifiedPlayerPhotos';
+import { VERIFIED_TENNIS_PHOTOS } from '../data/verifiedTennisPhotos';
 
 export interface PlayerMediaResult {
   photoUrl: string | null;
@@ -22,7 +23,9 @@ function getVerifiedPhotoUrl(star: StarPlayer): string | null {
   const url =
     star.sport === 'cricket'
       ? (VERIFIED_CRICKET_PHOTOS[key] ?? null)
-      : (VERIFIED_PLAYER_PHOTOS[key] ?? null);
+      : star.sport === 'tennis'
+        ? (VERIFIED_TENNIS_PHOTOS[key] ?? null)
+        : (VERIFIED_PLAYER_PHOTOS[key] ?? null);
   if (url && !brokenUrls.has(url)) return url;
   return null;
 }
@@ -145,7 +148,8 @@ async function fetchFromTheSportsDB(
 ): Promise<string | null> {
   try {
     const cleanName = playerName.replace(/-/g, ' ');
-    const targetSport = sport === 'cricket' ? 'Cricket' : 'Soccer';
+    const targetSport =
+      sport === 'cricket' ? 'Cricket' : sport === 'tennis' ? 'Tennis' : 'Soccer';
     const res = await fetch(
       `https://www.thesportsdb.com/api/v1/json/123/searchplayers.php?p=${encodeURIComponent(cleanName)}`
     );
