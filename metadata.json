@@ -1,0 +1,6 @@
+{
+  "name": "Premier League Globe",
+  "description": "Interactive 3D astrolabe globe showcasing Premier League star players segregated across 20 club territories.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
