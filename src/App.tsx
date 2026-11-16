@@ -4,8 +4,10 @@
  */
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Trophy } from 'lucide-react';
 import { ControlDock } from './components/ControlDock';
 import { GlobeViewport } from './components/GlobeViewport';
+import { LiveTablePanel } from './components/LiveTablePanel';
 import { PlayerProfileModal } from './components/PlayerProfileModal';
 import { PREMIER_LEAGUE_DATA, PlayerPosition } from './data/premierLeagueData';
 
@@ -19,6 +21,7 @@ export default function App() {
   const [autoRotate, setAutoRotate] = useState<boolean>(true);
   const [showLabels, setShowLabels] = useState<boolean>(true);
   const [collapsed, setCollapsed] = useState<boolean>(false);
+  const [tableOpen, setTableOpen] = useState<boolean>(false);
   const [resetSignal, setResetSignal] = useState<number>(0);
 
   const selectedStar = useMemo(
@@ -70,9 +73,13 @@ export default function App() {
       }
       if (e.key === 'h' || e.key === 'H') {
         setCollapsed((prev) => !prev);
+      } else if (e.key === 't' || e.key === 'T') {
+        setTableOpen((prev) => !prev);
       } else if (e.key === 'Escape') {
         if (selectedStarId) {
           setSelectedStarId(null);
+        } else if (tableOpen) {
+          setTableOpen(false);
         } else if (selectedClubId) {
           setSelectedClubId(null);
         }
@@ -80,12 +87,12 @@ export default function App() {
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [selectedClubId, selectedStarId]);
+  }, [selectedClubId, selectedStarId, tableOpen]);
 
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-[#060a11]">
       {/* Minimal Top-Left Title & Spec Header (Unboxed, Zero Pills, Zero Clutter) */}
-      <header className="pointer-events-none fixed top-5 left-6 z-20">
+      <header className="pointer-events-none fixed top-5 left-6 z-20 pr-36">
         <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-wide text-slate-50 leading-none">
           Premier League Globe
         </h1>
@@ -94,9 +101,24 @@ export default function App() {
           <span aria-hidden="true">·</span>
           <span>{allStars.length} Players</span>
           <span aria-hidden="true">·</span>
-          <span>Segregated Team Territories</span>
+          <span className="hidden sm:inline">Segregated Team Territories</span>
+          <span className="sm:hidden">3D Atlas</span>
         </p>
       </header>
+
+      {/* Top-Right Live League Table Trigger */}
+      <div className="fixed top-5 right-5 z-20">
+        <button
+          type="button"
+          onClick={() => setTableOpen((prev) => !prev)}
+          aria-expanded={tableOpen}
+          title="Open Live Premier League Table (T)"
+          className="flex items-center gap-2 rounded-lg border border-white/15 bg-[#0a0f18]/92 px-3.5 py-2 text-xs font-semibold text-slate-100 shadow-lg hover:border-amber-300/60 hover:text-amber-200 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+        >
+          <Trophy className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+          <span>League Table</span>
+        </button>
+      </div>
 
       {/* Full-Bleed 3D WebGL Globe Viewport */}
       <GlobeViewport
@@ -111,6 +133,17 @@ export default function App() {
         resetSignal={resetSignal}
         onSelectClub={handleSelectClub}
         onSelectStar={handleSelectStar}
+      />
+
+      {/* Live Premier League Standings & Matchweek Drawer */}
+      <LiveTablePanel
+        open={tableOpen}
+        selectedClubId={selectedClubId}
+        onClose={() => setTableOpen(false)}
+        onSelectGlobeClub={(clubId) => {
+          setSelectedStarId(null);
+          handleSelectClub(clubId);
+        }}
       />
 
       {/* Full Untruncated Player Profile & Achievements Modal when a Player is Clicked */}
