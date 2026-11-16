@@ -186,7 +186,7 @@ export const CLUBS_GROUP_D: RawClub[] = [
         achievements: ['FIFA U-20 World Cup Winner & Final Goalscorer (2017)', 'Everton Player of the Season (2020–21)'],
       },
       {
-        name: 'Jack Harrison', wikiTitle: 'Jack_Harrison', position: 'FW', number: 11, nationality: 'England', birthPlace: 'Stoke-on-Trent', age: 29, height: '1.75 m', preferredFoot: 'Left', joinedClub: 2023,
+        name: 'Jack Harrison', wikiTitle: 'Jack_Harrison_(footballer,_born_1996)', position: 'FW', number: 11, nationality: 'England', birthPlace: 'Stoke-on-Trent', age: 29, height: '1.75 m', preferredFoot: 'Left', joinedClub: 2023,
         previousClubs: ['New York City FC', 'Manchester City', 'Leeds United'], internationalCaps: 'England U-21', rating: 78, goals: 2, assists: 4, appearances: 34,
         signature: 'Tireless Wing Press & Cross', bio: 'Hard-working wide midfielder doubling back to protect his full-back while whipping left-foot crosses.',
         achievements: ['EFL Championship Winner (2019–20)', 'MLS First-Round Pick'],
@@ -456,7 +456,7 @@ export const CLUBS_GROUP_D: RawClub[] = [
         achievements: ['Danish Superliga Champion (2019–20)'],
       },
       {
-        name: 'Julio Enciso', wikiTitle: 'Julio_Enciso', position: 'MF', number: 9, nationality: 'Paraguay', birthPlace: 'Caaguazú', age: 22, height: '1.73 m', preferredFoot: 'Right', joinedClub: 2025,
+        name: 'Julio Enciso', wikiTitle: 'Julio_Enciso_(footballer,_born_2004)', position: 'MF', number: 9, nationality: 'Paraguay', birthPlace: 'Caaguazú', age: 22, height: '1.73 m', preferredFoot: 'Right', joinedClub: 2025,
         previousClubs: ['Libertad', 'Brighton'], internationalCaps: 'Paraguay · 23 Caps (2 Goals)', rating: 78, goals: 3, assists: 3, appearances: 15,
         signature: 'Explosive Long-Range Rocket', bio: 'Fearless Paraguayan creator shooting fiercely from distance and weaving past markers.',
         achievements: ['Premier League Goal of the Season (2022–23)', 'Paraguayan Primera División Champion'],
@@ -561,7 +561,7 @@ export const CLUBS_GROUP_D: RawClub[] = [
         achievements: ['FIFA World Cup 2022 Ghana Squad'],
       },
       {
-        name: 'Adam Armstrong', wikiTitle: 'Adam_Armstrong', position: 'FW', number: 9, nationality: 'England', birthPlace: 'Chapel House', age: 29, height: '1.72 m', preferredFoot: 'Right', joinedClub: 2021,
+        name: 'Adam Armstrong', wikiTitle: 'Adam_Armstrong_(footballer)', position: 'FW', number: 9, nationality: 'England', birthPlace: 'Chapel House', age: 29, height: '1.72 m', preferredFoot: 'Right', joinedClub: 2021,
         previousClubs: ['Newcastle', 'Coventry', 'Blackburn Rovers'], internationalCaps: 'England U-21', rating: 77, goals: 4, assists: 2, appearances: 24,
         signature: 'Wembley Play-Off Strike', bio: 'Clinical sharp-shooter who fired Saints back to the Premier League with his Wembley winner.',
         achievements: ['2024 Championship Play-Off Final Match-Winner', 'FIFA U-20 World Cup Winner (2017)'],

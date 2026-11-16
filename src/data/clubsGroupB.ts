@@ -27,7 +27,7 @@ export const CLUBS_GROUP_B: RawClub[] = [
         achievements: ['EFL Cup Winner (2024–25)', 'Olympic Gold Medalist (Tokyo 2020)', 'Copa Sudamericana Winner (2018)'],
       },
       {
-        name: 'Anthony Gordon', wikiTitle: 'Anthony_Gordon', position: 'FW', number: 10, nationality: 'England', birthPlace: 'Liverpool', age: 25, height: '1.83 m', preferredFoot: 'Right', joinedClub: 2023, marquee: true,
+        name: 'Anthony Gordon', wikiTitle: 'Anthony_Gordon_(footballer)', position: 'FW', number: 10, nationality: 'England', birthPlace: 'Liverpool', age: 25, height: '1.83 m', preferredFoot: 'Right', joinedClub: 2023, marquee: true,
         previousClubs: ['Everton', 'Preston North End'], internationalCaps: 'England · 9 Caps (1 Goal)', rating: 84, goals: 10, assists: 8, appearances: 34,
         signature: 'Explosive Left-Wing Cutback', bio: 'Relentless counter-attacking winger driving at full-backs and pressing from the first whistle.',
         achievements: ['EFL Cup Winner (2024–25)', 'UEFA European U-21 Winner & Player of Tournament (2023)', 'Newcastle Player of the Season (2023–24)'],
@@ -45,7 +45,7 @@ export const CLUBS_GROUP_B: RawClub[] = [
         achievements: ['EFL Cup Winner (2024–25)', 'Newcastle Player of the Season (2021–22)'],
       },
       {
-        name: 'Nick Pope', wikiTitle: 'Nick_Pope', position: 'GK', number: 22, nationality: 'England', birthPlace: 'Soham', age: 34, height: '1.98 m', preferredFoot: 'Right', joinedClub: 2022, marquee: true,
+        name: 'Nick Pope', wikiTitle: 'Nick_Pope_(footballer)', position: 'GK', number: 22, nationality: 'England', birthPlace: 'Soham', age: 34, height: '1.98 m', preferredFoot: 'Right', joinedClub: 2022, marquee: true,
         previousClubs: ['Charlton Athletic', 'Burnley'], internationalCaps: 'England · 10 Caps', rating: 83, goals: 0, assists: 0, appearances: 31,
         signature: 'Sweeper-Keeper Reflexes', bio: 'Towering England goalkeeper commanding his penalty box and pulling off point-blank reaction stops.',
         achievements: ['EFL Cup Winner (2024–25)', 'PFA Premier League Team of the Year (2019–20)', 'Burnley Player of the Year (2x)'],
@@ -111,7 +111,7 @@ export const CLUBS_GROUP_B: RawClub[] = [
         achievements: ['EFL Cup Winner (2024–25)', 'Chelsea Academy Player of the Year (2020–21)'],
       },
       {
-        name: 'Lewis Hall', wikiTitle: 'Lewis_Hall', position: 'DF', number: 20, nationality: 'England', birthPlace: 'Slough', age: 22, height: '1.79 m', preferredFoot: 'Left', joinedClub: 2023,
+        name: 'Lewis Hall', wikiTitle: 'Lewis_Hall_(footballer)', position: 'DF', number: 20, nationality: 'England', birthPlace: 'Slough', age: 22, height: '1.79 m', preferredFoot: 'Left', joinedClub: 2023,
         previousClubs: ['Chelsea'], internationalCaps: 'England · 2 Caps', rating: 80, goals: 1, assists: 5, appearances: 30,
         signature: 'Inverted Left-Back Passing', bio: 'Silky young left-back blending midfield ball progression with tenacious 1v1 tackling.',
         achievements: ['EFL Cup Winner (2024–25)', 'England Senior International'],
@@ -315,7 +315,7 @@ export const CLUBS_GROUP_B: RawClub[] = [
         achievements: ['UEFA Champions League Winner (2019–20)', 'Serie A Young Player of the Season (2023–24)'],
       },
       {
-        name: 'Manuel Ugarte', wikiTitle: 'Manuel_Ugarte', position: 'MF', number: 25, nationality: 'Uruguay', birthPlace: 'Montevideo', age: 25, height: '1.82 m', preferredFoot: 'Right', joinedClub: 2024,
+        name: 'Manuel Ugarte', wikiTitle: 'Manuel_Ugarte_(footballer)', position: 'MF', number: 25, nationality: 'Uruguay', birthPlace: 'Montevideo', age: 25, height: '1.82 m', preferredFoot: 'Right', joinedClub: 2024,
         previousClubs: ['Fénix', 'Famalicão', 'Sporting CP', 'PSG'], internationalCaps: 'Uruguay · 28 Caps', rating: 81, goals: 1, assists: 2, appearances: 29,
         signature: 'Relentless Ball-Winning Bite', bio: 'Tenacious Uruguayan destroyer snapping into tackles and covering wide transition spaces.',
         achievements: ['Ligue 1 Champion (2023–24)', 'Coupe de France Winner (2023–24)', 'Copa América 2024 Team of the Tournament'],
@@ -486,7 +486,7 @@ export const CLUBS_GROUP_B: RawClub[] = [
         achievements: ['3x Eredivisie Champion (Ajax)', 'UEFA Champions League Semi-Finalist'],
       },
       {
-        name: 'Jason Steele', wikiTitle: 'Jason_Steele', position: 'GK', number: 23, nationality: 'England', birthPlace: 'Newton Aycliffe', age: 36, height: '1.88 m', preferredFoot: 'Right', joinedClub: 2018,
+        name: 'Jason Steele', wikiTitle: 'Jason_Steele_(footballer)', position: 'GK', number: 23, nationality: 'England', birthPlace: 'Newton Aycliffe', age: 36, height: '1.88 m', preferredFoot: 'Right', joinedClub: 2018,
         previousClubs: ['Middlesbrough', 'Blackburn', 'Sunderland'], internationalCaps: 'Great Britain Olympic Squad', rating: 76, goals: 0, assists: 0, appearances: 8,
         signature: 'Composed Short Distribution', bio: 'Ball-playing veteran goalkeeper trusted to initiate calm passing triangles from the back.',
         achievements: ['Team GB Olympian (2012)', 'UEFA U-19 Euro Finalist'],
@@ -609,7 +609,7 @@ export const CLUBS_GROUP_B: RawClub[] = [
         achievements: ['Primeira Liga Champion (2022–23)'],
       },
       {
-        name: 'Carlos Miguel', wikiTitle: 'Carlos_Miguel_(footballer)', position: 'GK', number: 33, nationality: 'Brazil', birthPlace: 'Rio das Ostras', age: 28, height: '2.04 m', preferredFoot: 'Right', joinedClub: 2024,
+        name: 'Carlos Miguel', wikiTitle: 'Carlos_Miguel_(footballer,_born_1998)', position: 'GK', number: 33, nationality: 'Brazil', birthPlace: 'Rio das Ostras', age: 28, height: '2.04 m', preferredFoot: 'Right', joinedClub: 2024,
         previousClubs: ['Internacional', 'Corinthians'], internationalCaps: 'Brazil Standout', rating: 76, goals: 0, assists: 0, appearances: 6,
         signature: '2.04m Cross Claiming', bio: 'Towering Brazilian goalkeeper dominating high balls inside the six-yard box.',
         achievements: ['Tallest Premier League Goalkeeper'],

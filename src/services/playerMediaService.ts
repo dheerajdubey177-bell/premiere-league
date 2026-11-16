@@ -1,14 +1,26 @@
 import { useEffect, useState } from 'react';
 import { StarPlayer } from '../data/premierLeagueData';
+import { VERIFIED_PLAYER_PHOTOS } from '../data/verifiedPlayerPhotos';
 
 export interface PlayerMediaResult {
   photoUrl: string | null;
-  source: 'wikipedia' | 'thesportsdb' | 'none';
+  source: 'verified' | 'wikipedia' | 'thesportsdb' | 'none';
 }
 
 const mediaCache = new Map<string, PlayerMediaResult>();
 const inFlightRequests = new Map<string, Promise<PlayerMediaResult>>();
 const listeners = new Map<string, Set<(res: PlayerMediaResult) => void>>();
+const brokenUrls = new Set<string>();
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function getVerifiedPhotoUrl(star: StarPlayer): string | null {
+  const url = VERIFIED_PLAYER_PHOTOS[`${star.clubId}:${star.name}`] ?? null;
+  if (url && !brokenUrls.has(url)) return url;
+  return null;
+}
 
 function notifyListeners(starId: string, result: PlayerMediaResult) {
   const subs = listeners.get(starId);
@@ -22,15 +34,13 @@ function setCachedAndNotify(starId: string, result: PlayerMediaResult) {
 }
 
 /**
- * Batch-fetches Wikipedia thumbnails using the MediaWiki Query API (`titles=...` up to 35 per call)
- * with `pilicense=any` and `redirects=1` so all 360 players across all 20 clubs load in ~11 requests
- * without hitting HTTP 429 rate limits.
+ * Batch-fetches Wikipedia thumbnails using the MediaWiki Query API (`titles=...` up to 40 per call)
+ * with `pilicense=any` and `redirects=1` cleanly with rate-limit guards.
  */
 async function fetchWikipediaBatch(stars: StarPlayer[]): Promise<Set<string>> {
   const resolvedIds = new Set<string>();
   if (stars.length === 0) return resolvedIds;
 
-  // Map requested wiki title (underscore & space variants) -> StarPlayer[]
   const titleToStars = new Map<string, StarPlayer[]>();
   const titles: string[] = [];
 
@@ -53,11 +63,13 @@ async function fetchWikipediaBatch(stars: StarPlayer[]): Promise<Set<string>> {
     const res = await fetch(url, { headers: { Accept: 'application/json' } });
     if (!res.ok) return resolvedIds;
 
-    const data = await res.json();
+    const text = await res.text();
+    if (!text.startsWith('{')) return resolvedIds;
+
+    const data = JSON.parse(text);
     const query = data?.query;
     if (!query) return resolvedIds;
 
-    // Build alias resolution maps from normalized + redirects chains
     const normMap = new Map<string, string>();
     if (Array.isArray(query.normalized)) {
       for (const n of query.normalized) {
@@ -72,18 +84,16 @@ async function fetchWikipediaBatch(stars: StarPlayer[]): Promise<Set<string>> {
       }
     }
 
-    // Index returned pages by their canonical page title
     const pageThumbByTitle = new Map<string, string>();
     const pages = query.pages ? Object.values(query.pages) : [];
     for (const p of pages as Array<Record<string, unknown>>) {
       const title = typeof p?.title === 'string' ? p.title : null;
       const thumb = (p?.thumbnail as { source?: string } | undefined)?.source;
-      if (title && thumb) {
+      if (title && thumb && !brokenUrls.has(thumb)) {
         pageThumbByTitle.set(title, thumb);
       }
     }
 
-    // Resolve every star in this batch
     for (const star of stars) {
       const raw = star.wikiTitle.trim();
       const spaced = raw.replace(/_/g, ' ');
@@ -103,7 +113,7 @@ async function fetchWikipediaBatch(stars: StarPlayer[]): Promise<Set<string>> {
       }
     }
   } catch {
-    // Silent network fallback handled by caller
+    // Silent fallback handled by caller
   }
 
   return resolvedIds;
@@ -117,7 +127,8 @@ async function fetchFromWikipediaSummary(wikiTitle: string): Promise<string | nu
     );
     if (!res.ok) return null;
     const data = await res.json();
-    return data?.thumbnail?.source || data?.originalimage?.source || null;
+    const url = data?.thumbnail?.source || data?.originalimage?.source || null;
+    return url && !brokenUrls.has(url) ? url : null;
   } catch {
     return null;
   }
@@ -125,11 +136,15 @@ async function fetchFromWikipediaSummary(wikiTitle: string): Promise<string | nu
 
 async function fetchFromTheSportsDB(playerName: string): Promise<string | null> {
   try {
+    const cleanName = playerName.replace(/-/g, ' ');
     const res = await fetch(
-      `https://www.thesportsdb.com/api/v1/json/3/searchplayers.php?p=${encodeURIComponent(playerName)}`
+      `https://www.thesportsdb.com/api/v1/json/123/searchplayers.php?p=${encodeURIComponent(cleanName)}`
     );
     if (!res.ok) return null;
-    const data = await res.json();
+    const text = await res.text();
+    if (!text.startsWith('{')) return null;
+
+    const data = JSON.parse(text);
     const list = Array.isArray(data?.player) ? data.player : [];
     const soccerMatch = list.find(
       (item: Record<string, unknown>) =>
@@ -138,23 +153,32 @@ async function fetchFromTheSportsDB(playerName: string): Promise<string | null> 
         (item.strCutout || item.strThumb || item.strRender)
     );
     if (!soccerMatch) return null;
-    return (
+    const url =
       (soccerMatch.strCutout as string) ||
       (soccerMatch.strThumb as string) ||
       (soccerMatch.strRender as string) ||
-      null
-    );
+      null;
+    return url && !brokenUrls.has(url) ? url : null;
   } catch {
     return null;
   }
 }
 
-export function getCachedPlayerMedia(starId: string): PlayerMediaResult | undefined {
-  return mediaCache.get(starId);
+export function getCachedPlayerMedia(star: StarPlayer): PlayerMediaResult | undefined {
+  const cached = mediaCache.get(star.id);
+  if (cached) return cached;
+
+  const verifiedUrl = getVerifiedPhotoUrl(star);
+  if (verifiedUrl) {
+    const res: PlayerMediaResult = { photoUrl: verifiedUrl, source: 'verified' };
+    mediaCache.set(star.id, res);
+    return res;
+  }
+  return undefined;
 }
 
 export async function getPlayerMedia(star: StarPlayer): Promise<PlayerMediaResult> {
-  const cached = mediaCache.get(star.id);
+  const cached = getCachedPlayerMedia(star);
   if (cached) return cached;
 
   const existing = inFlightRequests.get(star.id);
@@ -192,75 +216,74 @@ export async function getPlayerMedia(star: StarPlayer): Promise<PlayerMediaResul
 }
 
 /**
- * Prioritizes resolving media for a specific focused club's full 18-man squad immediately.
+ * If a verified or cached URL ever fails to load in an <img> element, mark it broken and
+ * fall back cleanly to live Wikipedia / TheSportsDB recovery once.
+ */
+export function recoverBrokenPhoto(star: StarPlayer, failedUrl: string): void {
+  if (brokenUrls.has(failedUrl)) return;
+  brokenUrls.add(failedUrl);
+  mediaCache.delete(star.id);
+  void getPlayerMedia(star);
+}
+
+/**
+ * Prioritizes resolving media for any uncached players in a focused club's squad.
  */
 export async function prioritizeClubMedia(clubStars: StarPlayer[]): Promise<void> {
-  const missing = clubStars.filter((s) => !mediaCache.has(s.id));
+  const missing = clubStars.filter((s) => !getCachedPlayerMedia(s));
   if (missing.length === 0) return;
 
   const resolvedIds = await fetchWikipediaBatch(missing);
-  const stillMissing = missing.filter((s) => !resolvedIds.has(s.id) && !mediaCache.has(s.id));
+  const stillMissing = missing.filter(
+    (s) => !resolvedIds.has(s.id) && !getCachedPlayerMedia(s)
+  );
 
   for (const star of stillMissing) {
-    void getPlayerMedia(star);
+    await getPlayerMedia(star);
+    await sleep(300);
   }
 }
 
 /**
- * Batch-prefetches all 360 player photos across all 20 clubs cleanly in ~11 Wikipedia API calls,
- * loading marquee stars across all clubs first so every team displays portraits on the globe immediately,
- * followed by full squads and TheSportsDB fallbacks for any remaining players.
+ * Populates the media cache instantaneously for all verified portraits across all 20 clubs,
+ * and sequentially resolves any remaining players without triggering API rate limits.
  */
 let prefetchStarted = false;
 export function prefetchAllPlayerMedia(allStars: StarPlayer[]): void {
   if (prefetchStarted) return;
   prefetchStarted = true;
 
-  const marqueeStars = allStars.filter((s) => s.marquee);
-  const squadStars = allStars.filter((s) => !s.marquee);
-  const ordered = [...marqueeStars, ...squadStars];
-
-  const batchSize = 35;
-  const batches: StarPlayer[][] = [];
-  for (let i = 0; i < ordered.length; i += batchSize) {
-    batches.push(ordered.slice(i, i + batchSize));
+  const missing: StarPlayer[] = [];
+  for (const star of allStars) {
+    if (!getCachedPlayerMedia(star)) {
+      missing.push(star);
+    }
   }
 
+  if (missing.length === 0) return;
+
   void (async () => {
+    const batchSize = 35;
     const unresolved: StarPlayer[] = [];
 
-    // Run batches with gentle concurrency of 2 so all 20 clubs populate swiftly without 429s
-    let cursor = 0;
-    const batchWorker = async () => {
-      while (cursor < batches.length) {
-        const idx = cursor++;
-        const batch = batches[idx].filter((s) => !mediaCache.has(s.id));
-        if (batch.length === 0) continue;
-
-        const resolvedIds = await fetchWikipediaBatch(batch);
-        for (const s of batch) {
-          if (!resolvedIds.has(s.id) && !mediaCache.has(s.id)) {
-            unresolved.push(s);
-          }
+    for (let i = 0; i < missing.length; i += batchSize) {
+      const batch = missing.slice(i, i + batchSize).filter((s) => !getCachedPlayerMedia(s));
+      if (batch.length === 0) continue;
+      const resolvedIds = await fetchWikipediaBatch(batch);
+      for (const s of batch) {
+        if (!resolvedIds.has(s.id) && !getCachedPlayerMedia(s)) {
+          unresolved.push(s);
         }
       }
-    };
+      if (i + batchSize < missing.length) await sleep(200);
+    }
 
-    await Promise.all([batchWorker(), batchWorker()]);
-
-    // Fallback pass via TheSportsDB / REST summary for any player missed by batch pageimages
-    let fbCursor = 0;
-    const fallbackWorker = async () => {
-      while (fbCursor < unresolved.length) {
-        const idx = fbCursor++;
-        const star = unresolved[idx];
-        if (!mediaCache.has(star.id)) {
-          await getPlayerMedia(star);
-        }
+    for (const star of unresolved) {
+      if (!getCachedPlayerMedia(star)) {
+        await getPlayerMedia(star);
+        await sleep(800);
       }
-    };
-
-    await Promise.all([fallbackWorker(), fallbackWorker(), fallbackWorker()]);
+    }
   })();
 }
 
@@ -269,10 +292,10 @@ export function usePlayerMedia(star: StarPlayer | null): {
   loading: boolean;
 } {
   const [media, setMedia] = useState<PlayerMediaResult | null>(() =>
-    star ? (mediaCache.get(star.id) ?? null) : null
+    star ? (getCachedPlayerMedia(star) ?? null) : null
   );
   const [loading, setLoading] = useState<boolean>(() =>
-    star ? !mediaCache.has(star.id) : false
+    star ? !getCachedPlayerMedia(star) : false
   );
 
   useEffect(() => {
@@ -282,7 +305,7 @@ export function usePlayerMedia(star: StarPlayer | null): {
       return;
     }
 
-    const cached = mediaCache.get(star.id);
+    const cached = getCachedPlayerMedia(star);
     if (cached) {
       setMedia(cached);
       setLoading(false);
@@ -304,7 +327,6 @@ export function usePlayerMedia(star: StarPlayer | null): {
     }
     listeners.get(star.id)!.add(sub);
 
-    // Trigger load if not already queued
     void getPlayerMedia(star).then((res) => {
       if (!active) return;
       setMedia(res);

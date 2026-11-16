@@ -87,7 +87,7 @@ export const CLUBS_GROUP_C: RawClub[] = [
         achievements: ['DFB-Pokal Winner (2021–22)', 'CONCACAF Nations League Winner (3x)', 'US Soccer Male Player of the Year'],
       },
       {
-        name: 'Lewis Cook', wikiTitle: 'Lewis_Cook', position: 'MF', number: 4, nationality: 'England', birthPlace: 'York', age: 29, height: '1.75 m', preferredFoot: 'Right', joinedClub: 2016,
+        name: 'Lewis Cook', wikiTitle: 'Lewis_Cook_(footballer,_born_1997)', position: 'MF', number: 4, nationality: 'England', birthPlace: 'York', age: 29, height: '1.75 m', preferredFoot: 'Right', joinedClub: 2016,
         previousClubs: ['Leeds United'], internationalCaps: 'England · 1 Cap', rating: 80, goals: 1, assists: 4, appearances: 35,
         signature: 'Tenacious Pivot Screening', bio: 'Composed Cherries vice-captain dictating build-up tempo and covering huge ground.',
         achievements: ['FIFA U-20 World Cup Winning Captain (2017)', 'Bournemouth Promotion Hero'],
@@ -162,7 +162,7 @@ export const CLUBS_GROUP_C: RawClub[] = [
         achievements: ['Olympic Gold Medalist (London 2012)', '2x Liga MX & Primeira Liga Champion', 'CONCACAF Gold Cup Winner'],
       },
       {
-        name: 'Joachim Andersen', wikiTitle: 'Joachim_Andersen', position: 'DF', number: 5, nationality: 'Denmark', birthPlace: 'Frederiksberg', age: 30, height: '1.92 m', preferredFoot: 'Right', joinedClub: 2024, marquee: true,
+        name: 'Joachim Andersen', wikiTitle: 'Joachim_Andersen_(footballer)', position: 'DF', number: 5, nationality: 'Denmark', birthPlace: 'Frederiksberg', age: 30, height: '1.92 m', preferredFoot: 'Right', joinedClub: 2024, marquee: true,
         previousClubs: ['Twente', 'Sampdoria', 'Lyon', 'Crystal Palace'], internationalCaps: 'Denmark · 39 Caps', rating: 82, goals: 1, assists: 2, appearances: 33,
         signature: '60-Yard Quarterback Ping', bio: 'Commanding Danish centre-back firing pinpoint long diagonals straight into Fulham\'s wingers.',
         achievements: ['Danish Superliga & International Starter', 'UEFA Euro 2020 Semi-Finalist'],
@@ -240,7 +240,7 @@ export const CLUBS_GROUP_C: RawClub[] = [
         achievements: ['FA Cup Winner (2020–21)', 'FA Community Shield Winner (2021)'],
       },
       {
-        name: 'Issa Diop', wikiTitle: 'Issa_Diop', position: 'DF', number: 31, nationality: 'France', birthPlace: 'Toulouse', age: 29, height: '1.94 m', preferredFoot: 'Right', joinedClub: 2022,
+        name: 'Issa Diop', wikiTitle: 'Issa_Diop_(footballer)', position: 'DF', number: 31, nationality: 'France', birthPlace: 'Toulouse', age: 29, height: '1.94 m', preferredFoot: 'Right', joinedClub: 2022,
         previousClubs: ['Toulouse', 'West Ham United'], internationalCaps: 'France U-21', rating: 78, goals: 0, assists: 0, appearances: 23,
         signature: 'Aerial Penalty-Box Shield', bio: 'Physical French defender commanding high balls in both penalty areas.',
         achievements: ['UEFA European U-19 Champion (2016)'],
@@ -609,7 +609,7 @@ export const CLUBS_GROUP_C: RawClub[] = [
         achievements: ['FA Cup Winner (2024–25)', 'PFA Championship Team of the Year'],
       },
       {
-        name: 'Matt Turner', wikiTitle: 'Matt_Turner', position: 'GK', number: 30, nationality: 'United States', birthPlace: 'Park Ridge', age: 32, height: '1.91 m', preferredFoot: 'Right', joinedClub: 2024,
+        name: 'Matt Turner', wikiTitle: 'Matt_Turner_(soccer)', position: 'GK', number: 30, nationality: 'United States', birthPlace: 'Park Ridge', age: 32, height: '1.91 m', preferredFoot: 'Right', joinedClub: 2024,
         previousClubs: ['New England Revolution', 'Arsenal', 'Nottingham Forest'], internationalCaps: 'USA · 49 Caps', rating: 76, goals: 0, assists: 0, appearances: 6,
         signature: 'Athletic Shot-Stopping', bio: 'USMNT #1 bringing international tournament reflexes to Palace\'s cup campaign.',
         achievements: ['FA Cup Winner (2024–25)', 'MLS Goalkeeper of the Year (2021)', 'CONCACAF Nations League Winner (2x)'],

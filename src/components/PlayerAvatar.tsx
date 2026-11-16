@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ClubSector, StarPlayer } from '../data/premierLeagueData';
-import { usePlayerMedia } from '../services/playerMediaService';
+import { recoverBrokenPhoto, usePlayerMedia } from '../services/playerMediaService';
 
 export interface PlayerAvatarProps {
   star: StarPlayer;
@@ -30,6 +30,11 @@ export const PlayerAvatar: React.FC<PlayerAvatarProps> = ({
   const showImage = Boolean(photoUrl) && !imgFailed;
   const initials = getInitials(star.name);
 
+  const handleImgError = () => {
+    if (photoUrl) recoverBrokenPhoto(star, photoUrl);
+    setImgFailed(true);
+  };
+
   if (size === 'xs') {
     return (
       <div
@@ -43,7 +48,8 @@ export const PlayerAvatar: React.FC<PlayerAvatarProps> = ({
             src={photoUrl!}
             alt={star.name}
             referrerPolicy="no-referrer"
-            onError={() => setImgFailed(true)}
+            decoding="async"
+            onError={handleImgError}
             className="h-full w-full object-cover object-top"
           />
         ) : (
@@ -68,7 +74,8 @@ export const PlayerAvatar: React.FC<PlayerAvatarProps> = ({
             src={photoUrl!}
             alt={star.name}
             referrerPolicy="no-referrer"
-            onError={() => setImgFailed(true)}
+            decoding="async"
+            onError={handleImgError}
             className="h-full w-full object-cover object-top"
           />
         ) : (
@@ -92,7 +99,8 @@ export const PlayerAvatar: React.FC<PlayerAvatarProps> = ({
           src={photoUrl!}
           alt={`${star.name} portrait`}
           referrerPolicy="no-referrer"
-          onError={() => setImgFailed(true)}
+          decoding="async"
+          onError={handleImgError}
           className="h-full w-full object-cover object-top"
         />
       ) : (

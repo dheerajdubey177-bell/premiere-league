@@ -99,7 +99,7 @@ export const CLUBS_GROUP_A: RawClub[] = [
         achievements: ['2x Eredivisie Champion (Ajax)', 'KNVB Cup Winner (2020–21)', 'Eredivisie Player of the Year (2021–22)'],
       },
       {
-        name: 'Ben White', wikiTitle: 'Ben_White', position: 'DF', number: 4, nationality: 'England', birthPlace: 'Poole', age: 29, height: '1.86 m', preferredFoot: 'Right', joinedClub: 2021,
+        name: 'Ben White', wikiTitle: 'Ben_White_(footballer)', position: 'DF', number: 4, nationality: 'England', birthPlace: 'Poole', age: 29, height: '1.86 m', preferredFoot: 'Right', joinedClub: 2021,
         previousClubs: ['Brighton', 'Leeds United'], internationalCaps: 'England · 4 Caps', rating: 84, goals: 2, assists: 5, appearances: 31,
         signature: 'Right-Flank Overlap Link', bio: 'Intelligent ball-playing defender forming a telepathic right-side triangle with Saka and Odegaard.',
         achievements: ['EFL Championship Winner (2019–20)', 'FA Community Shield Winner (2023)', 'Brighton Player of the Season'],
@@ -216,7 +216,7 @@ export const CLUBS_GROUP_A: RawClub[] = [
         achievements: ['UEFA Champions League Winner (2018–19)', 'Premier League Champion (2019–20)', '2x PFA Team of the Year'],
       },
       {
-        name: 'Curtis Jones', wikiTitle: 'Curtis_Jones_(footballer)', position: 'MF', number: 17, nationality: 'England', birthPlace: 'Liverpool', age: 25, height: '1.85 m', preferredFoot: 'Right', joinedClub: 2018,
+        name: 'Curtis Jones', wikiTitle: 'Curtis_Jones_(footballer,_born_2001)', position: 'MF', number: 17, nationality: 'England', birthPlace: 'Liverpool', age: 25, height: '1.85 m', preferredFoot: 'Right', joinedClub: 2018,
         previousClubs: ['Liverpool Academy'], internationalCaps: 'England · 4 Caps (1 Goal)', rating: 81, goals: 4, assists: 5, appearances: 32,
         signature: 'Press-Proof Ball Retention', bio: 'Scouse academy graduate blending silky ball retention under pressure.',
         achievements: ['UEFA European U-21 Winner & Final Scorer (2023)', 'Premier League Champion (2019–20)'],
@@ -315,7 +315,7 @@ export const CLUBS_GROUP_A: RawClub[] = [
         achievements: ['Premier League Champion (2023–24)', 'FIFA Club World Cup Winner', '4 Assists in Single PL Match'],
       },
       {
-        name: 'Savinho', wikiTitle: 'Savinho_(footballer,_born_2004)', position: 'FW', number: 26, nationality: 'Brazil', birthPlace: 'São Mateus', age: 22, height: '1.76 m', preferredFoot: 'Left', joinedClub: 2024,
+        name: 'Savinho', wikiTitle: 'Savinho', position: 'FW', number: 26, nationality: 'Brazil', birthPlace: 'São Mateus', age: 22, height: '1.76 m', preferredFoot: 'Left', joinedClub: 2024,
         previousClubs: ['Atlético Mineiro', 'PSV', 'Girona'], internationalCaps: 'Brazil · 11 Caps (1 Goal)', rating: 81, goals: 4, assists: 10, appearances: 33,
         signature: 'Touchline Samba Take-Ons', bio: 'Direct Brazilian winger terrorizing full-backs on both flanks with sharp step-overs.',
         achievements: ['La Liga Team of the Season (2023–24)', 'Campeonato Brasileiro Champion', 'KNVB Cup Winner'],
@@ -462,7 +462,7 @@ export const CLUBS_GROUP_A: RawClub[] = [
         achievements: ['France Senior Debut', 'Chelsea Breakthrough Right-Back'],
       },
       {
-        name: 'Wesley Fofana', wikiTitle: 'Wesley_Fofana_(footballer,_born_2000)', position: 'DF', number: 29, nationality: 'France', birthPlace: 'Marseille', age: 25, height: '1.90 m', preferredFoot: 'Right', joinedClub: 2022,
+        name: 'Wesley Fofana', wikiTitle: 'Wesley_Fofana_(footballer)', position: 'DF', number: 29, nationality: 'France', birthPlace: 'Marseille', age: 25, height: '1.90 m', preferredFoot: 'Right', joinedClub: 2022,
         previousClubs: ['Saint-Étienne', 'Leicester City'], internationalCaps: 'France · 1 Cap', rating: 81, goals: 1, assists: 0, appearances: 22,
         signature: 'High-Line Recovery Speed', bio: 'Athletic French centre-back combining fearless challenges with recovery sprints.',
         achievements: ['FA Cup Winner (2020–21)', 'Leicester Young Player of the Season'],
