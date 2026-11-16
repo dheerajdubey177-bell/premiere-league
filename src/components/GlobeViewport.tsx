@@ -822,7 +822,7 @@ export const GlobeViewport: React.FC<GlobeViewportProps> = ({
             3D Viewport Paused
           </p>
           <p className="mt-2 max-w-md text-sm text-slate-400">
-            Graphics context was suspended by the browser. Reload or restore the tab to resume Dheeraj's Globe.
+            Graphics context was suspended by the browser. Reload or restore the tab to resume the 3D Sports Globe.
           </p>
         </div>
       )}

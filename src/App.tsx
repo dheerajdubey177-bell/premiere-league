@@ -86,8 +86,8 @@ export default function App() {
   useEffect(() => {
     document.title =
       sport === 'cricket'
-        ? "Dheeraj's World Cricket Globe — 3D Cricket Atlas"
-        : "Dheeraj's Premier League Globe — Segregated 3D Club & Star Atlas";
+        ? 'World Cricket Globe — 3D Cricket Atlas'
+        : 'Premier League Globe — Segregated 3D Club & Star Atlas';
   }, [sport]);
 
   useEffect(() => {
@@ -118,10 +118,8 @@ export default function App() {
     <main className="relative h-screen w-screen overflow-hidden bg-[#060a11]">
       {/* Minimal Top-Left Title & Spec Header (Unboxed, Zero Pills, Zero Clutter) */}
       <header className="pointer-events-none fixed top-4 left-4 sm:top-5 sm:left-6 z-20 pr-48 sm:pr-72">
-        <h1 className="font-display text-lg sm:text-2xl md:text-3xl font-bold tracking-wide text-slate-50 leading-tight">
-          {sport === 'cricket'
-            ? "Dheeraj's World Cricket Globe"
-            : "Dheeraj's Premier League Globe"}
+        <h1 className="font-display text-xl sm:text-3xl font-bold tracking-wide text-slate-50 leading-none truncate">
+          {sport === 'cricket' ? 'World Cricket Globe' : 'Premier League Globe'}
         </h1>
         <p className="mt-1.5 flex items-center gap-2 text-xs text-slate-400">
           <span>
