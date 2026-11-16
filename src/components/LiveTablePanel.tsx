@@ -1,5 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { RefreshCw, Trophy, X } from 'lucide-react';
+import { SportMode } from '../data/premierLeagueTypes';
+import {
+  CricketFormat,
+  CricketLiveMatchesBundle,
+  CricketRankingsBundle,
+  fetchLiveCricketMatches,
+  fetchLiveIccRankings,
+} from '../services/cricketTableService';
 import {
   fetchLivePremierLeagueMatches,
   fetchLivePremierLeagueTable,
@@ -10,13 +18,15 @@ import {
 } from '../services/premierLeagueTableService';
 
 export interface LiveTablePanelProps {
+  sport: SportMode;
   open: boolean;
   selectedClubId: string | null;
   onClose: () => void;
   onSelectGlobeClub: (clubId: string) => void;
 }
 
-type ActiveTab = 'standings' | 'matches';
+type FootballTab = 'standings' | 'matches';
+type CricketTab = 'rankings' | 'scores';
 
 const ClubCrest: React.FC<{ logoUrl: string | null; abbreviation: string; name: string }> = ({
   logoUrl,
@@ -24,6 +34,10 @@ const ClubCrest: React.FC<{ logoUrl: string | null; abbreviation: string; name: 
   name,
 }) => {
   const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    setFailed(false);
+  }, [logoUrl]);
 
   if (!logoUrl || failed) {
     return (
@@ -73,18 +87,29 @@ function formatUpdatedClock(ts: number): string {
 }
 
 export const LiveTablePanel: React.FC<LiveTablePanelProps> = ({
+  sport,
   open,
   selectedClubId,
   onClose,
   onSelectGlobeClub,
 }) => {
-  const [activeTab, setActiveTab] = useState<ActiveTab>('standings');
+  // Football state
+  const [footballTab, setFootballTab] = useState<FootballTab>('standings');
   const [tableData, setTableData] = useState<LiveLeagueTableData | null>(null);
   const [matchesData, setMatchesData] = useState<LiveMatchweekData | null>(null);
+
+  // Cricket state
+  const [cricketTab, setCricketTab] = useState<CricketTab>('rankings');
+  const [cricketFormat, setCricketFormat] = useState<CricketFormat>('test');
+  const [cricketRankings, setCricketRankings] = useState<
+    Partial<Record<CricketFormat, CricketRankingsBundle>>
+  >({});
+  const [cricketMatches, setCricketMatches] = useState<CricketLiveMatchesBundle | null>(null);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadData = useCallback(async (signal?: AbortSignal) => {
+  const loadFootballData = useCallback(async (signal?: AbortSignal) => {
     setLoading(true);
     setError(null);
     try {
@@ -108,37 +133,97 @@ export const LiveTablePanel: React.FC<LiveTablePanelProps> = ({
       if (signal?.aborted) return;
       setError(err instanceof Error ? err.message : 'Unable to load live Premier League table');
     } finally {
-      if (!signal?.aborted) {
-        setLoading(false);
-      }
+      if (!signal?.aborted) setLoading(false);
     }
   }, []);
+
+  const loadCricketData = useCallback(
+    async (format: CricketFormat, signal?: AbortSignal) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const [rankingsRes, scoresRes] = await Promise.allSettled([
+          fetchLiveIccRankings(format, signal),
+          fetchLiveCricketMatches(signal),
+        ]);
+
+        if (signal?.aborted) return;
+
+        if (rankingsRes.status === 'fulfilled') {
+          setCricketRankings((prev) => ({
+            ...prev,
+            [format]: rankingsRes.value,
+          }));
+        }
+        if (scoresRes.status === 'fulfilled') {
+          setCricketMatches(scoresRes.value);
+        }
+
+        if (rankingsRes.status === 'rejected' && scoresRes.status === 'rejected') {
+          throw rankingsRes.reason;
+        }
+      } catch (err) {
+        if (signal?.aborted) return;
+        setError(err instanceof Error ? err.message : 'Unable to load live Cricket data');
+      } finally {
+        if (!signal?.aborted) setLoading(false);
+      }
+    },
+    []
+  );
 
   useEffect(() => {
     if (!open) return;
     const controller = new AbortController();
-    void loadData(controller.signal);
+
+    if (sport === 'football') {
+      void loadFootballData(controller.signal);
+    } else {
+      void loadCricketData(cricketFormat, controller.signal);
+    }
 
     const intervalId = window.setInterval(() => {
-      void loadData();
+      if (sport === 'football') {
+        void loadFootballData();
+      } else {
+        void loadCricketData(cricketFormat);
+      }
     }, 60_000);
 
     return () => {
       controller.abort();
       window.clearInterval(intervalId);
     };
-  }, [open, loadData]);
+  }, [open, sport, cricketFormat, loadFootballData, loadCricketData]);
 
   if (!open) return null;
 
-  const seasonHeading =
-    tableData?.seasonLabel || matchesData?.seasonLabel || 'English Premier League';
-  const lastFetchedAt = tableData?.fetchedAt ?? matchesData?.fetchedAt ?? null;
+  const currentCricketRanking = cricketRankings[cricketFormat] ?? null;
+
+  const headingTitle =
+    sport === 'cricket'
+      ? cricketTab === 'rankings'
+        ? currentCricketRanking?.title || "ICC Men's Team Rankings"
+        : 'Live World Cricket Scores'
+      : tableData?.seasonLabel || matchesData?.seasonLabel || 'English Premier League';
+
+  const lastFetchedAt =
+    sport === 'cricket'
+      ? currentCricketRanking?.fetchedAt ?? cricketMatches?.fetchedAt ?? null
+      : tableData?.fetchedAt ?? matchesData?.fetchedAt ?? null;
+
+  const handleRefresh = () => {
+    if (sport === 'football') {
+      void loadFootballData();
+    } else {
+      void loadCricketData(cricketFormat);
+    }
+  };
 
   return (
     <aside
       role="dialog"
-      aria-label="Live Premier League Table"
+      aria-label={sport === 'cricket' ? 'Live Cricket Rankings & Scores' : 'Live Premier League Table'}
       className="fixed top-3 right-3 bottom-3 left-3 sm:left-auto sm:top-4 sm:right-4 sm:bottom-4 sm:w-[min(560px,92vw)] z-30 flex flex-col rounded-2xl border border-white/15 bg-[#0a101b]/97 shadow-[0_28px_70px_rgba(0,0,0,0.85)] overflow-hidden"
     >
       {/* Header */}
@@ -147,11 +232,11 @@ export const LiveTablePanel: React.FC<LiveTablePanelProps> = ({
           <div className="flex items-center gap-2">
             <Trophy className="h-4 w-4 shrink-0 text-amber-400" />
             <h2 className="font-display text-xl font-bold tracking-wide text-slate-50 truncate">
-              {seasonHeading}
+              {headingTitle}
             </h2>
           </div>
           <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-slate-400">
-            <span>Live Standings</span>
+            <span>{sport === 'cricket' ? 'ICC Live Feed' : 'Live Standings'}</span>
             {lastFetchedAt && (
               <>
                 <span aria-hidden="true">·</span>
@@ -161,17 +246,21 @@ export const LiveTablePanel: React.FC<LiveTablePanelProps> = ({
               </>
             )}
             <span aria-hidden="true">·</span>
-            <span>Click a club to locate on globe</span>
+            <span>
+              {sport === 'cricket'
+                ? 'Click a nation to locate on globe'
+                : 'Click a club to locate on globe'}
+            </span>
           </p>
         </div>
 
         <div className="flex items-center gap-1.5 shrink-0">
           <button
             type="button"
-            onClick={() => void loadData()}
+            onClick={handleRefresh}
             disabled={loading}
-            title="Refresh live table"
-            aria-label="Refresh live table"
+            title="Refresh live feed"
+            aria-label="Refresh live feed"
             className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white disabled:opacity-50 transition-colors cursor-pointer"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
@@ -179,7 +268,7 @@ export const LiveTablePanel: React.FC<LiveTablePanelProps> = ({
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close live league table"
+            aria-label="Close live table"
             className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
           >
             <X className="h-4 w-4" />
@@ -188,66 +277,121 @@ export const LiveTablePanel: React.FC<LiveTablePanelProps> = ({
       </div>
 
       {/* Segmented View Tabs */}
-      <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-2.5 sm:px-5">
-        <div className="inline-flex items-center gap-1 rounded-lg bg-white/5 p-1">
-          <button
-            type="button"
-            onClick={() => setActiveTab('standings')}
-            className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
-              activeTab === 'standings'
-                ? 'bg-amber-400 text-slate-950 font-semibold'
-                : 'text-slate-300 hover:text-white'
-            }`}
-          >
-            Standings
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('matches')}
-            className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
-              activeTab === 'matches'
-                ? 'bg-amber-400 text-slate-950 font-semibold'
-                : 'text-slate-300 hover:text-white'
-            }`}
-          >
-            Matchweek
-          </button>
-        </div>
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 px-4 py-2.5 sm:px-5">
+        {sport === 'football' ? (
+          <>
+            <div className="inline-flex items-center gap-1 rounded-lg bg-white/5 p-1">
+              <button
+                type="button"
+                onClick={() => setFootballTab('standings')}
+                className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+                  footballTab === 'standings'
+                    ? 'bg-amber-400 text-slate-950 font-semibold'
+                    : 'text-slate-300 hover:text-white'
+                }`}
+              >
+                Standings
+              </button>
+              <button
+                type="button"
+                onClick={() => setFootballTab('matches')}
+                className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+                  footballTab === 'matches'
+                    ? 'bg-amber-400 text-slate-950 font-semibold'
+                    : 'text-slate-300 hover:text-white'
+                }`}
+              >
+                Matchweek
+              </button>
+            </div>
+            <span className="font-mono-tabular text-[11px] text-slate-400 whitespace-nowrap">
+              {footballTab === 'standings'
+                ? `${tableData?.rows.length ?? 20} Clubs`
+                : `${matchesData?.matches.length ?? 0} Fixtures`}
+            </span>
+          </>
+        ) : (
+          <>
+            <div className="inline-flex items-center gap-1 rounded-lg bg-white/5 p-1">
+              <button
+                type="button"
+                onClick={() => setCricketTab('rankings')}
+                className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+                  cricketTab === 'rankings'
+                    ? 'bg-amber-400 text-slate-950 font-semibold'
+                    : 'text-slate-300 hover:text-white'
+                }`}
+              >
+                ICC Rankings
+              </button>
+              <button
+                type="button"
+                onClick={() => setCricketTab('scores')}
+                className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+                  cricketTab === 'scores'
+                    ? 'bg-amber-400 text-slate-950 font-semibold'
+                    : 'text-slate-300 hover:text-white'
+                }`}
+              >
+                Live Scores
+              </button>
+            </div>
 
-        <span className="font-mono-tabular text-[11px] text-slate-400 whitespace-nowrap">
-          {activeTab === 'standings'
-            ? `${tableData?.rows.length ?? 20} Clubs`
-            : `${matchesData?.matches.length ?? 0} Fixtures`}
-        </span>
+            {cricketTab === 'rankings' ? (
+              <div className="inline-flex items-center gap-0.5 rounded-lg bg-white/5 p-1">
+                {(['test', 'odi', 't20i'] as CricketFormat[]).map((fmt) => (
+                  <button
+                    key={fmt}
+                    type="button"
+                    onClick={() => setCricketFormat(fmt)}
+                    className={`rounded-md px-2.5 py-1 text-[11px] font-semibold uppercase transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+                      cricketFormat === fmt
+                        ? 'bg-slate-100 text-slate-950'
+                        : 'text-slate-300 hover:text-white'
+                    }`}
+                  >
+                    {fmt === 't20i' ? 'T20I' : fmt.toUpperCase()}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <span className="font-mono-tabular text-[11px] text-slate-400 whitespace-nowrap">
+                {cricketMatches?.matches.length ?? 0} Matches
+              </span>
+            )}
+          </>
+        )}
       </div>
 
       {/* Body Content */}
       <div className="club-scroll flex-1 overflow-y-auto px-3 py-2 sm:px-4">
-        {loading && !tableData && (
-          <div className="space-y-2 py-3">
-            {Array.from({ length: 10 }).map((_, idx) => (
-              <div
-                key={idx}
-                className="h-9 w-full rounded-md bg-white/5 animate-pulse"
-              />
-            ))}
-          </div>
-        )}
+        {loading &&
+          ((sport === 'football' && !tableData) ||
+            (sport === 'cricket' && !currentCricketRanking && !cricketMatches)) && (
+            <div className="space-y-2 py-3">
+              {Array.from({ length: 10 }).map((_, idx) => (
+                <div key={idx} className="h-9 w-full rounded-md bg-white/5 animate-pulse" />
+              ))}
+            </div>
+          )}
 
-        {error && !tableData && (
-          <div className="flex flex-col items-center justify-center gap-3 py-12 text-center px-4">
-            <p className="text-sm text-rose-300">{error}</p>
-            <button
-              type="button"
-              onClick={() => void loadData()}
-              className="rounded-lg bg-amber-400 px-4 py-2 text-xs font-semibold text-slate-950 hover:bg-amber-300 transition-colors cursor-pointer"
-            >
-              Retry Live Feed
-            </button>
-          </div>
-        )}
+        {error &&
+          ((sport === 'football' && !tableData) ||
+            (sport === 'cricket' && !currentCricketRanking && !cricketMatches)) && (
+            <div className="flex flex-col items-center justify-center gap-3 py-12 text-center px-4">
+              <p className="text-sm text-rose-300">{error}</p>
+              <button
+                type="button"
+                onClick={handleRefresh}
+                className="rounded-lg bg-amber-400 px-4 py-2 text-xs font-semibold text-slate-950 hover:bg-amber-300 transition-colors cursor-pointer"
+              >
+                Retry Live Feed
+              </button>
+            </div>
+          )}
 
-        {activeTab === 'standings' && tableData && (
+        {/* FOOTBALL STANDINGS */}
+        {sport === 'football' && footballTab === 'standings' && tableData && (
           <table className="w-full border-collapse text-left text-xs">
             <thead className="sticky top-0 z-10 bg-[#0a101b] text-[11px] font-medium text-slate-400 border-b border-white/10">
               <tr>
@@ -358,7 +502,8 @@ export const LiveTablePanel: React.FC<LiveTablePanelProps> = ({
           </table>
         )}
 
-        {activeTab === 'matches' && (
+        {/* FOOTBALL MATCHWEEK */}
+        {sport === 'football' && footballTab === 'matches' && (
           <div className="space-y-2 py-2">
             {!matchesData || matchesData.matches.length === 0 ? (
               <p className="py-10 text-center text-xs text-slate-400">
@@ -461,17 +606,195 @@ export const LiveTablePanel: React.FC<LiveTablePanelProps> = ({
             )}
           </div>
         )}
+
+        {/* CRICKET ICC RANKINGS */}
+        {sport === 'cricket' && cricketTab === 'rankings' && currentCricketRanking && (
+          <table className="w-full border-collapse text-left text-xs">
+            <thead className="sticky top-0 z-10 bg-[#0a101b] text-[11px] font-medium text-slate-400 border-b border-white/10">
+              <tr>
+                <th className="py-2 pl-2 pr-1.5 w-8 text-right font-mono-tabular">#</th>
+                <th className="py-2 px-2">Nation</th>
+                <th className="py-2 px-2 text-right font-mono-tabular">Matches</th>
+                <th className="py-2 px-2 text-right font-mono-tabular">Points</th>
+                <th className="py-2 pl-2 pr-2 text-right font-mono-tabular text-slate-200">
+                  Rating
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentCricketRanking.rows.map((row) => {
+                const isSelectedOnGlobe =
+                  selectedClubId !== null && row.globeClubId === selectedClubId;
+                const canLocate = row.globeClubId !== null;
+                const rankClass =
+                  row.rank === 1
+                    ? 'text-amber-300'
+                    : row.rank <= 4
+                    ? 'text-emerald-400'
+                    : 'text-slate-400';
+
+                return (
+                  <tr
+                    key={`${currentCricketRanking.format}-${row.rank}-${row.teamName}`}
+                    onClick={() => {
+                      if (row.globeClubId) {
+                        onSelectGlobeClub(row.globeClubId);
+                      }
+                    }}
+                    title={
+                      canLocate
+                        ? `Focus ${row.teamName} on 3D Cricket Globe`
+                        : `${row.teamName} (ICC Ranked)`
+                    }
+                    className={`border-b border-white/6 transition-colors ${
+                      isSelectedOnGlobe
+                        ? 'bg-amber-400/14 text-white'
+                        : canLocate
+                        ? 'hover:bg-white/6 cursor-pointer text-slate-200'
+                        : 'text-slate-400'
+                    }`}
+                  >
+                    <td className={`py-2.5 pl-2 pr-1.5 text-right font-mono-tabular font-semibold ${rankClass}`}>
+                      {row.rank}
+                    </td>
+                    <td className="py-2.5 px-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <ClubCrest
+                          logoUrl={row.flagUrl}
+                          abbreviation={row.teamName.slice(0, 3).toUpperCase()}
+                          name={row.teamName}
+                        />
+                        <span
+                          className={`truncate font-medium ${
+                            isSelectedOnGlobe ? 'text-amber-200' : ''
+                          }`}
+                        >
+                          {row.teamName}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="py-2.5 px-2 text-right font-mono-tabular text-slate-300">
+                      {row.matches}
+                    </td>
+                    <td className="py-2.5 px-2 text-right font-mono-tabular text-slate-400">
+                      {row.points.toLocaleString()}
+                    </td>
+                    <td className="py-2.5 pl-2 pr-2 text-right font-mono-tabular font-bold text-white">
+                      {row.rating}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+
+        {/* CRICKET LIVE SCORES */}
+        {sport === 'cricket' && cricketTab === 'scores' && (
+          <div className="space-y-2 py-2">
+            {!cricketMatches || cricketMatches.matches.length === 0 ? (
+              <p className="py-10 text-center text-xs text-slate-400">
+                No active international or domestic cricket matches right now.
+              </p>
+            ) : (
+              cricketMatches.matches.map((match) => (
+                <div
+                  key={match.id}
+                  className="rounded-xl border border-white/8 bg-white/3 px-3.5 py-2.5"
+                >
+                  <div className="flex items-center justify-between gap-2 text-[11px] text-slate-400">
+                    <span className="truncate font-medium text-slate-300">
+                      {match.seriesName}
+                    </span>
+                    <span
+                      className={`shrink-0 font-mono-tabular ${
+                        match.state === 'in'
+                          ? 'font-semibold text-emerald-400'
+                          : match.state === 'post'
+                          ? 'text-slate-300'
+                          : 'text-slate-400'
+                      }`}
+                    >
+                      {match.state === 'in'
+                        ? `LIVE · ${match.statusText}`
+                        : match.state === 'post'
+                        ? match.statusText
+                        : formatMatchDateTime(match.dateIso)}
+                    </span>
+                  </div>
+
+                  <div className="mt-2 space-y-1.5 text-xs">
+                    {[match.home, match.away].map((side, idx) => (
+                      <div
+                        key={`${match.id}-${idx}-${side.name}`}
+                        className="flex items-center justify-between gap-3"
+                      >
+                        <button
+                          type="button"
+                          disabled={!side.globeClubId}
+                          onClick={() => {
+                            if (side.globeClubId) {
+                              onSelectGlobeClub(side.globeClubId);
+                            }
+                          }}
+                          className={`flex items-center gap-2 min-w-0 text-left ${
+                            side.globeClubId
+                              ? 'hover:text-amber-300 transition-colors cursor-pointer'
+                              : 'cursor-default text-slate-300'
+                          }`}
+                        >
+                          <ClubCrest
+                            logoUrl={side.logoUrl}
+                            abbreviation={side.abbreviation}
+                            name={side.name}
+                          />
+                          <span
+                            className={`truncate font-medium ${
+                              side.winner ? 'text-white font-semibold' : 'text-slate-200'
+                            }`}
+                          >
+                            {side.name}
+                          </span>
+                        </button>
+
+                        <span className="font-mono-tabular text-xs font-semibold text-slate-100 shrink-0">
+                          {side.score || (match.state === 'pre' ? 'Upcoming' : '—')}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {match.matchNote && (
+                    <p className="mt-1.5 text-[11px] text-amber-200/85 truncate">
+                      {match.matchNote}
+                    </p>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        )}
       </div>
 
       {/* Footer Legend */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-t border-white/10 px-4 py-2.5 text-[11px] text-slate-400 sm:px-5">
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-          <span className="text-emerald-400">Champions League</span>
-          <span aria-hidden="true">·</span>
-          <span className="text-sky-400">Europa League</span>
-          <span aria-hidden="true">·</span>
-          <span className="text-rose-400">Relegation</span>
-        </div>
+        {sport === 'football' ? (
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <span className="text-emerald-400">Champions League</span>
+            <span aria-hidden="true">·</span>
+            <span className="text-sky-400">Europa League</span>
+            <span aria-hidden="true">·</span>
+            <span className="text-rose-400">Relegation</span>
+          </div>
+        ) : (
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <span className="text-amber-300">No. 1 Ranked</span>
+            <span aria-hidden="true">·</span>
+            <span className="text-emerald-400">Top 4 Nations</span>
+            <span aria-hidden="true">·</span>
+            <span>Test · ODI · T20I</span>
+          </div>
+        )}
         <span className="font-mono-tabular text-slate-500">Auto-sync 60s</span>
       </div>
     </aside>

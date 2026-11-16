@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { StarPlayer } from '../data/premierLeagueData';
+import { SportMode, StarPlayer } from '../data/premierLeagueTypes';
+import { VERIFIED_CRICKET_PHOTOS } from '../data/verifiedCricketPhotos';
 import { VERIFIED_PLAYER_PHOTOS } from '../data/verifiedPlayerPhotos';
 
 export interface PlayerMediaResult {
@@ -17,7 +18,11 @@ function sleep(ms: number): Promise<void> {
 }
 
 function getVerifiedPhotoUrl(star: StarPlayer): string | null {
-  const url = VERIFIED_PLAYER_PHOTOS[`${star.clubId}:${star.name}`] ?? null;
+  const key = `${star.clubId}:${star.name}`;
+  const url =
+    star.sport === 'cricket'
+      ? (VERIFIED_CRICKET_PHOTOS[key] ?? null)
+      : (VERIFIED_PLAYER_PHOTOS[key] ?? null);
   if (url && !brokenUrls.has(url)) return url;
   return null;
 }
@@ -134,9 +139,13 @@ async function fetchFromWikipediaSummary(wikiTitle: string): Promise<string | nu
   }
 }
 
-async function fetchFromTheSportsDB(playerName: string): Promise<string | null> {
+async function fetchFromTheSportsDB(
+  playerName: string,
+  sport: SportMode = 'football'
+): Promise<string | null> {
   try {
     const cleanName = playerName.replace(/-/g, ' ');
+    const targetSport = sport === 'cricket' ? 'Cricket' : 'Soccer';
     const res = await fetch(
       `https://www.thesportsdb.com/api/v1/json/123/searchplayers.php?p=${encodeURIComponent(cleanName)}`
     );
@@ -146,17 +155,17 @@ async function fetchFromTheSportsDB(playerName: string): Promise<string | null> 
 
     const data = JSON.parse(text);
     const list = Array.isArray(data?.player) ? data.player : [];
-    const soccerMatch = list.find(
+    const match = list.find(
       (item: Record<string, unknown>) =>
         item &&
-        item.strSport === 'Soccer' &&
+        item.strSport === targetSport &&
         (item.strCutout || item.strThumb || item.strRender)
     );
-    if (!soccerMatch) return null;
+    if (!match) return null;
     const url =
-      (soccerMatch.strCutout as string) ||
-      (soccerMatch.strThumb as string) ||
-      (soccerMatch.strRender as string) ||
+      (match.strCutout as string) ||
+      (match.strThumb as string) ||
+      (match.strRender as string) ||
       null;
     return url && !brokenUrls.has(url) ? url : null;
   } catch {
@@ -197,7 +206,7 @@ export async function getPlayerMedia(star: StarPlayer): Promise<PlayerMediaResul
       return result;
     }
 
-    const sportsDbPhoto = await fetchFromTheSportsDB(star.name);
+    const sportsDbPhoto = await fetchFromTheSportsDB(star.name, star.sport ?? 'football');
     if (sportsDbPhoto) {
       const result: PlayerMediaResult = { photoUrl: sportsDbPhoto, source: 'thesportsdb' };
       setCachedAndNotify(star.id, result);
@@ -248,10 +257,11 @@ export async function prioritizeClubMedia(clubStars: StarPlayer[]): Promise<void
  * Populates the media cache instantaneously for all verified portraits across all 20 clubs,
  * and sequentially resolves any remaining players without triggering API rate limits.
  */
-let prefetchStarted = false;
+const prefetchedSports = new Set<string>();
 export function prefetchAllPlayerMedia(allStars: StarPlayer[]): void {
-  if (prefetchStarted) return;
-  prefetchStarted = true;
+  const sportKey = allStars[0]?.sport ?? 'football';
+  if (prefetchedSports.has(sportKey)) return;
+  prefetchedSports.add(sportKey);
 
   const missing: StarPlayer[] = [];
   for (const star of allStars) {

@@ -64,7 +64,7 @@ export const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
               className="ml-1 flex items-center gap-1.5 rounded-md bg-white/8 px-2.5 py-1.5 text-xs font-medium text-slate-200 hover:bg-white/15 hover:text-white transition-colors whitespace-nowrap shrink-0 cursor-pointer"
             >
               <Users className="w-3.5 h-3.5" />
-              <span>Club Squad</span>
+              <span>{star.sport === 'cricket' ? 'Team Squad' : 'Club Squad'}</span>
             </button>
             <button
               type="button"
@@ -85,19 +85,29 @@ export const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
 
             <div className="grid grid-cols-2 gap-2 flex-1 sm:flex-none rounded-xl border border-white/10 bg-white/4 p-3 font-mono-tabular">
               <div>
-                <div className="text-[11px] text-slate-400">Overall</div>
+                <div className="text-[11px] text-slate-400">
+                  {star.sport === 'cricket' ? 'Rating' : 'Overall'}
+                </div>
                 <div className="text-lg font-bold text-amber-300">{star.rating}</div>
               </div>
               <div>
-                <div className="text-[11px] text-slate-400">Apps</div>
+                <div className="text-[11px] text-slate-400">
+                  {star.sport === 'cricket' ? 'Matches' : 'Apps'}
+                </div>
                 <div className="text-lg font-bold text-white">{star.appearances}</div>
               </div>
               <div>
-                <div className="text-[11px] text-slate-400">Goals</div>
-                <div className="text-lg font-bold text-white">{star.goals}</div>
+                <div className="text-[11px] text-slate-400">
+                  {star.sport === 'cricket' ? 'Runs' : 'Goals'}
+                </div>
+                <div className="text-lg font-bold text-white">
+                  {star.goals.toLocaleString()}
+                </div>
               </div>
               <div>
-                <div className="text-[11px] text-slate-400">Assists</div>
+                <div className="text-[11px] text-slate-400">
+                  {star.sport === 'cricket' ? 'Wickets' : 'Assists'}
+                </div>
                 <div className="text-lg font-bold text-white">{star.assists}</div>
               </div>
             </div>
@@ -143,13 +153,17 @@ export const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
                 </div>
               </div>
               <div>
-                <div className="text-slate-400">Preferred Foot</div>
+                <div className="text-slate-400">
+                  {star.sport === 'cricket' ? 'Batting Hand' : 'Preferred Foot'}
+                </div>
                 <div className="mt-0.5 font-semibold text-white">
                   {star.preferredFoot}
                 </div>
               </div>
               <div>
-                <div className="text-slate-400">Joined {club.shortName}</div>
+                <div className="text-slate-400">
+                  {star.sport === 'cricket' ? 'Int’l Debut' : `Joined ${club.shortName}`}
+                </div>
                 <div className="mt-0.5 font-mono-tabular font-semibold text-white">
                   {star.joinedClub}
                 </div>
@@ -159,11 +173,15 @@ export const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
             {/* International Record & Career Path */}
             <div className="mt-3 space-y-1.5 text-xs">
               <div className="flex flex-wrap gap-x-2">
-                <span className="text-slate-400">International Record:</span>
+                <span className="text-slate-400">
+                  {star.sport === 'cricket' ? 'Format Caps:' : 'International Record:'}
+                </span>
                 <span className="font-medium text-slate-100">{star.internationalCaps}</span>
               </div>
               <div className="flex flex-wrap gap-x-2">
-                <span className="text-slate-400">Previous Clubs:</span>
+                <span className="text-slate-400">
+                  {star.sport === 'cricket' ? 'Franchise & Domestic:' : 'Previous Clubs:'}
+                </span>
                 <span className="font-medium text-slate-200">
                   {star.previousClubs.join(' · ')}
                 </span>

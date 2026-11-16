@@ -628,6 +628,11 @@ export const GlobeViewport: React.FC<GlobeViewportProps> = ({
       renderer.domElement.removeEventListener('pointerleave', onPointerLeave);
       renderer.domElement.removeEventListener('pointerup', onPointerUp);
 
+      hoveredStarIdx = null;
+      hoverPausedRef.current = false;
+      setHoveredStarId(null);
+      setHoveredTooltip(null);
+
       builtGlobe.dispose();
       textures.dispose();
       envTexture.dispose();
@@ -778,15 +783,26 @@ export const GlobeViewport: React.FC<GlobeViewportProps> = ({
                 <span>{hoveredTooltip.star.position}</span>
                 <span aria-hidden="true">·</span>
                 <span className="font-mono-tabular text-slate-300">
-                  OVR {hoveredTooltip.star.rating}
+                  {hoveredTooltip.star.sport === 'cricket' ? 'RTG' : 'OVR'}{' '}
+                  {hoveredTooltip.star.rating}
                 </span>
               </div>
             </div>
           </div>
           <div className="mt-2 flex items-center gap-3 border-t border-slate-800 pt-1.5 text-[11px] text-slate-300 font-mono-tabular">
-            <span>{hoveredTooltip.star.goals}G</span>
-            <span>{hoveredTooltip.star.assists}A</span>
-            <span>{hoveredTooltip.star.appearances} Apps</span>
+            {hoveredTooltip.star.sport === 'cricket' ? (
+              <>
+                <span>{hoveredTooltip.star.goals.toLocaleString()}R</span>
+                <span>{hoveredTooltip.star.assists}W</span>
+                <span>{hoveredTooltip.star.appearances} Mat</span>
+              </>
+            ) : (
+              <>
+                <span>{hoveredTooltip.star.goals}G</span>
+                <span>{hoveredTooltip.star.assists}A</span>
+                <span>{hoveredTooltip.star.appearances} Apps</span>
+              </>
+            )}
           </div>
           {hoveredTooltip.star.achievements[0] && (
             <p className="mt-1 truncate text-[11px] text-amber-200/90">
@@ -806,7 +822,7 @@ export const GlobeViewport: React.FC<GlobeViewportProps> = ({
             3D Viewport Paused
           </p>
           <p className="mt-2 max-w-md text-sm text-slate-400">
-            Graphics context was suspended by the browser. Reload or restore the tab to resume the Premier League Globe.
+            Graphics context was suspended by the browser. Reload or restore the tab to resume Dheeraj's Globe.
           </p>
         </div>
       )}

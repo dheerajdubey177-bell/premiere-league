@@ -9,11 +9,12 @@ import { ControlDock } from './components/ControlDock';
 import { GlobeViewport } from './components/GlobeViewport';
 import { LiveTablePanel } from './components/LiveTablePanel';
 import { PlayerProfileModal } from './components/PlayerProfileModal';
+import { CRICKET_WORLD_DATA } from './data/cricketData';
 import { PREMIER_LEAGUE_DATA, PlayerPosition } from './data/premierLeagueData';
+import { SportMode } from './data/premierLeagueTypes';
 
 export default function App() {
-  const { clubs, allStars } = PREMIER_LEAGUE_DATA;
-
+  const [sport, setSport] = useState<SportMode>('football');
   const [selectedClubId, setSelectedClubId] = useState<string | null>(null);
   const [selectedStarId, setSelectedStarId] = useState<string | null>(null);
   const [positionFilter, setPositionFilter] = useState<PlayerPosition | 'ALL'>('ALL');
@@ -24,6 +25,9 @@ export default function App() {
   const [tableOpen, setTableOpen] = useState<boolean>(false);
   const [resetSignal, setResetSignal] = useState<number>(0);
 
+  const { clubs, allStars } =
+    sport === 'cricket' ? CRICKET_WORLD_DATA : PREMIER_LEAGUE_DATA;
+
   const selectedStar = useMemo(
     () => allStars.find((s) => s.id === selectedStarId) ?? null,
     [allStars, selectedStarId]
@@ -32,6 +36,20 @@ export default function App() {
   const selectedStarClub = useMemo(
     () => (selectedStar ? clubs.find((c) => c.id === selectedStar.clubId) ?? null : null),
     [clubs, selectedStar]
+  );
+
+  const handleSwitchSport = useCallback(
+    (nextSport: SportMode) => {
+      if (nextSport === sport) return;
+      setSport(nextSport);
+      setSelectedStarId(null);
+      setSelectedClubId(null);
+      setPositionFilter('ALL');
+      setExplodeTarget(0);
+      setAutoRotate(true);
+      setResetSignal((n) => n + 1);
+    },
+    [sport]
   );
 
   const handleSelectClub = useCallback((clubId: string | null) => {
@@ -66,6 +84,13 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    document.title =
+      sport === 'cricket'
+        ? "Dheeraj's World Cricket Globe — 3D Cricket Atlas"
+        : "Dheeraj's Premier League Globe — Segregated 3D Club & Star Atlas";
+  }, [sport]);
+
+  useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
@@ -92,31 +117,80 @@ export default function App() {
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-[#060a11]">
       {/* Minimal Top-Left Title & Spec Header (Unboxed, Zero Pills, Zero Clutter) */}
-      <header className="pointer-events-none fixed top-5 left-6 z-20 pr-36">
-        <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-wide text-slate-50 leading-none">
-          Premier League Globe
+      <header className="pointer-events-none fixed top-4 left-4 sm:top-5 sm:left-6 z-20 pr-48 sm:pr-72">
+        <h1 className="font-display text-lg sm:text-2xl md:text-3xl font-bold tracking-wide text-slate-50 leading-tight">
+          {sport === 'cricket'
+            ? "Dheeraj's World Cricket Globe"
+            : "Dheeraj's Premier League Globe"}
         </h1>
         <p className="mt-1.5 flex items-center gap-2 text-xs text-slate-400">
-          <span>{clubs.length} Clubs</span>
+          <span>
+            {clubs.length} {sport === 'cricket' ? 'Nations' : 'Clubs'}
+          </span>
           <span aria-hidden="true">·</span>
-          <span>{allStars.length} Players</span>
-          <span aria-hidden="true">·</span>
-          <span className="hidden sm:inline">Segregated Team Territories</span>
-          <span className="sm:hidden">3D Atlas</span>
+          <span>
+            {allStars.length} {sport === 'cricket' ? 'Stars' : 'Players'}
+          </span>
+          <span aria-hidden="true" className="hidden sm:inline">
+            ·
+          </span>
+          <span className="hidden sm:inline">
+            {sport === 'cricket'
+              ? 'ICC Cricket Territories'
+              : 'Segregated Team Territories'}
+          </span>
         </p>
       </header>
 
-      {/* Top-Right Live League Table Trigger */}
-      <div className="fixed top-5 right-5 z-20">
+      {/* Top-Right Sport Switcher & Live Table Trigger */}
+      <div className="fixed top-4 right-4 sm:top-5 sm:right-5 z-20 flex items-center gap-2">
+        <div
+          role="group"
+          aria-label="Switch sport"
+          className="inline-flex items-center gap-0.5 rounded-lg border border-white/15 bg-[#0a0f18]/92 p-0.5 shadow-lg"
+        >
+          <button
+            type="button"
+            onClick={() => handleSwitchSport('football')}
+            aria-pressed={sport === 'football'}
+            className={`rounded-md px-2.5 sm:px-3 py-1.5 text-xs font-semibold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+              sport === 'football'
+                ? 'bg-amber-400 text-slate-950'
+                : 'text-slate-300 hover:text-white'
+            }`}
+          >
+            Football
+          </button>
+          <button
+            type="button"
+            onClick={() => handleSwitchSport('cricket')}
+            aria-pressed={sport === 'cricket'}
+            className={`rounded-md px-2.5 sm:px-3 py-1.5 text-xs font-semibold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+              sport === 'cricket'
+                ? 'bg-amber-400 text-slate-950'
+                : 'text-slate-300 hover:text-white'
+            }`}
+          >
+            Cricket
+          </button>
+        </div>
+
         <button
           type="button"
           onClick={() => setTableOpen((prev) => !prev)}
           aria-expanded={tableOpen}
-          title="Open Live Premier League Table (T)"
-          className="flex items-center gap-2 rounded-lg border border-white/15 bg-[#0a0f18]/92 px-3.5 py-2 text-xs font-semibold text-slate-100 shadow-lg hover:border-amber-300/60 hover:text-amber-200 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+          title={
+            sport === 'cricket'
+              ? 'Open Live ICC Rankings & Scores (T)'
+              : 'Open Live Premier League Table (T)'
+          }
+          className="flex items-center gap-2 rounded-lg border border-white/15 bg-[#0a0f18]/92 px-3 sm:px-3.5 py-2 text-xs font-semibold text-slate-100 shadow-lg hover:border-amber-300/60 hover:text-amber-200 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
         >
           <Trophy className="h-3.5 w-3.5 text-amber-400 shrink-0" />
-          <span>League Table</span>
+          <span className="hidden sm:inline">
+            {sport === 'cricket' ? 'Rankings & Scores' : 'League Table'}
+          </span>
+          <span className="sm:hidden">Table</span>
         </button>
       </div>
 
@@ -135,8 +209,9 @@ export default function App() {
         onSelectStar={handleSelectStar}
       />
 
-      {/* Live Premier League Standings & Matchweek Drawer */}
+      {/* Live Standings / Rankings & Scores Drawer */}
       <LiveTablePanel
+        sport={sport}
         open={tableOpen}
         selectedClubId={selectedClubId}
         onClose={() => setTableOpen(false)}
@@ -160,6 +235,7 @@ export default function App() {
 
       {/* Unified Collapsible Bottom Control Dock */}
       <ControlDock
+        sport={sport}
         clubs={clubs}
         allStars={allStars}
         selectedClubId={selectedClubId}

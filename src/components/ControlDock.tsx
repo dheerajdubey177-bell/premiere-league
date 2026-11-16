@@ -10,9 +10,11 @@ import {
   X,
 } from 'lucide-react';
 import { ClubSector, PlayerPosition, StarPlayer } from '../data/premierLeagueData';
+import { SportMode } from '../data/premierLeagueTypes';
 import { PlayerAvatar } from './PlayerAvatar';
 
 export interface ControlDockProps {
+  sport: SportMode;
   clubs: ClubSector[];
   allStars: StarPlayer[];
   selectedClubId: string | null;
@@ -32,7 +34,7 @@ export interface ControlDockProps {
   onResetView: () => void;
 }
 
-const POSITION_OPTIONS: Array<{ value: PlayerPosition | 'ALL'; label: string }> = [
+const FOOTBALL_POSITION_OPTIONS: Array<{ value: PlayerPosition | 'ALL'; label: string }> = [
   { value: 'ALL', label: 'All' },
   { value: 'FW', label: 'FW' },
   { value: 'MF', label: 'MF' },
@@ -40,7 +42,16 @@ const POSITION_OPTIONS: Array<{ value: PlayerPosition | 'ALL'; label: string }> 
   { value: 'GK', label: 'GK' },
 ];
 
+const CRICKET_POSITION_OPTIONS: Array<{ value: PlayerPosition | 'ALL'; label: string }> = [
+  { value: 'ALL', label: 'All' },
+  { value: 'BAT', label: 'BAT' },
+  { value: 'AR', label: 'AR' },
+  { value: 'BWL', label: 'BWL' },
+  { value: 'WK', label: 'WK' },
+];
+
 export const ControlDock: React.FC<ControlDockProps> = ({
+  sport,
   clubs,
   allStars,
   selectedClubId,
@@ -59,6 +70,8 @@ export const ControlDock: React.FC<ControlDockProps> = ({
   onToggleLabels,
   onResetView,
 }) => {
+  const positionOptions =
+    sport === 'cricket' ? CRICKET_POSITION_OPTIONS : FOOTBALL_POSITION_OPTIONS;
   const [searchQuery, setSearchQuery] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
 
@@ -147,7 +160,7 @@ export const ControlDock: React.FC<ControlDockProps> = ({
                     className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-slate-300 hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
                   >
                     <X className="w-3.5 h-3.5" />
-                    <span>All Clubs</span>
+                    <span>{sport === 'cricket' ? 'All Nations' : 'All Clubs'}</span>
                   </button>
                 </div>
               </div>
@@ -199,7 +212,7 @@ export const ControlDock: React.FC<ControlDockProps> = ({
                 : 'bg-white/6 text-slate-300 hover:bg-white/12 hover:text-white'
             }`}
           >
-            All 20 Clubs
+            {sport === 'cricket' ? `All ${clubs.length} Nations` : `All ${clubs.length} Clubs`}
           </button>
 
           {clubs.map((club) => {
@@ -234,7 +247,7 @@ export const ControlDock: React.FC<ControlDockProps> = ({
           <div className="flex flex-wrap items-center gap-2">
             {/* Position Filter Segmented Bar */}
             <div className="flex items-center gap-0.5 rounded-md bg-white/5 p-0.5">
-              {POSITION_OPTIONS.map((opt) => {
+              {positionOptions.map((opt) => {
                 const active = positionFilter === opt.value;
                 return (
                   <button
@@ -262,8 +275,8 @@ export const ControlDock: React.FC<ControlDockProps> = ({
                 onFocus={() => setSearchFocused(true)}
                 onBlur={() => setTimeout(() => setSearchFocused(false), 160)}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Find star or club..."
-                aria-label="Search Premier League star or club"
+                placeholder={sport === 'cricket' ? 'Find cricketer or nation...' : 'Find star or club...'}
+                aria-label={sport === 'cricket' ? 'Search cricketer or nation' : 'Search Premier League star or club'}
                 className="w-44 sm:w-52 rounded-md border border-white/10 bg-white/5 pl-8 pr-7 py-1 text-xs text-slate-100 placeholder:text-slate-500 focus:border-amber-300/70 focus:outline-none"
               />
               {searchQuery && (

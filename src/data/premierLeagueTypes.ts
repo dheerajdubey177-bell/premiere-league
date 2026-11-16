@@ -1,6 +1,12 @@
 import * as THREE from 'three';
 
-export type PlayerPosition = 'FW' | 'MF' | 'DF' | 'GK';
+export type SportMode = 'football' | 'cricket';
+
+export type FootballPosition = 'FW' | 'MF' | 'DF' | 'GK';
+
+export type CricketRole = 'BAT' | 'AR' | 'BWL' | 'WK';
+
+export type PlayerPosition = FootballPosition | CricketRole;
 
 export type HeraldryPattern = 'halves' | 'stripes' | 'sash' | 'chevron' | 'hoops' | 'solid';
 
@@ -9,6 +15,7 @@ export interface StarPlayer {
   name: string;
   wikiTitle: string;
   clubId: string;
+  sport?: SportMode;
   position: PlayerPosition;
   number: number;
   nationality: string;
